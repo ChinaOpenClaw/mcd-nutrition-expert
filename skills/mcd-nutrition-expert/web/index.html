@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>麦当劳营养膳食专家</title>
+<style>
+  :root{
+    --red:#DA291C; --red-dk:#8C1F18; --gold:#FFC72C; --gold-dk:#E0A800;
+    --cream:#FFF6E4; --ink:#1A1614; --ink2:#5A4E48; --line:#E8DCC8;
+    --bg:#FBF7F0; --card:#FFFFFF;
+    --q-sweet:#2E9E5B; --q-treat:#E8833A; --q-edge:#C0392B; --q-filler:#4A7FB5;
+    --shadow:0 2px 14px rgba(26,22,20,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .topbar{
+    position:sticky; top:0; z-index:50; background:linear-gradient(100deg,var(--red),var(--red-dk));
+    color:#fff; padding:0 22px; display:flex; align-items:center; gap:22px;
+    box-shadow:0 2px 10px rgba(140,31,24,.28);
+  }
+  .brand{display:flex; align-items:center; gap:11px; padding:12px 0; flex-shrink:0}
+  .m-logo{width:34px;height:34px;border-radius:50%;background:var(--gold);
+    display:grid;place-items:center;color:var(--red-dk);font-weight:900;font-size:19px;
+    font-family:Georgia,serif;box-shadow:0 0 0 2.5px rgba(255,255,255,.28)}
+  .brand h1{font-size:17px;font-weight:700;letter-spacing:.4px}
+  .brand small{display:block;font-size:11px;opacity:.82;font-weight:400;letter-spacing:.6px}
+  .nav{display:flex;gap:4px;overflow-x:auto;flex:1}
+  .nav button{
+    background:transparent;border:0;color:rgba(255,255,255,.82);font-size:14px;
+    padding:9px 15px;border-radius:8px;cursor:pointer;white-space:nowrap;
+    font-family:inherit;transition:.16s;
+  }
+  .nav button:hover{background:rgba(255,255,255,.13);color:#fff}
+  .nav button.on{background:var(--gold);color:var(--red-dk);font-weight:700}
+  .hpill{font-size:12px;padding:5px 11px;border-radius:20px;
+    background:rgba(255,255,255,.15);white-space:nowrap}
+  .hpill.ok{background:rgba(120,220,150,.28)}
+  .hpill.bad{background:rgba(255,140,120,.32)}
+
+  .wrap{max-width:1420px;margin:0 auto;padding:22px}
+  .view{display:none}
+  .view.on{display:block}
+
+  .card{background:var(--card);border-radius:14px;padding:22px;box-shadow:var(--shadow);
+    border:1px solid rgba(232,220,200,.8)}
+  .card h3{font-size:18px;margin-bottom:6px;display:flex;align-items:center;gap:9px}
+  .card h3::before{content:"";width:4px;height:17px;background:var(--red);border-radius:2px}
+  .card .sub{font-size:13px;color:var(--ink2);margin-bottom:16px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:1000px){.grid2,.grid3{grid-template-columns:1fr}}
+
+  .formrow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media(max-width:820px){.formrow{grid-template-columns:repeat(2,1fr)}}
+  label.f{display:block}
+  label.f span{display:block;font-size:12px;color:var(--ink2);margin-bottom:5px;font-weight:600}
+  input,select{width:100%;padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;
+    font-size:14px;font-family:inherit;background:#fff;color:var(--ink);transition:.15s}
+  input:focus,select:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(218,41,28,.1)}
+  .btn{background:var(--red);color:#fff;border:0;padding:10px 22px;border-radius:9px;
+    font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+  .btn:hover{background:var(--red-dk)}
+  .btn.gold{background:var(--gold);color:var(--red-dk)}
+  .btn.gold:hover{background:var(--gold-dk)}
+  .btn.ghost{background:transparent;color:var(--red);border:1.5px solid var(--red)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px;margin-top:16px}
+  .kpi{background:linear-gradient(160deg,#fff,var(--cream));border:1px solid var(--line);
+    border-radius:12px;padding:15px 16px}
+  .kpi .k{font-size:11.5px;color:var(--ink2);font-weight:600;letter-spacing:.4px}
+  .kpi .v{font-size:25px;font-weight:800;color:var(--red);line-height:1.25;margin-top:3px}
+  .kpi .v small{font-size:13px;font-weight:600;color:var(--ink2)}
+  .kpi .d{font-size:11.5px;color:var(--ink2);margin-top:2px}
+  .kpi.g .v{color:var(--q-sweet)} .kpi.o .v{color:var(--q-treat)}
+  .kpi.b .v{color:var(--q-filler)} .kpi.r .v{color:var(--q-edge)}
+
+  /* SP 矩阵 */
+  .spwrap{position:relative;background:#fff;border-radius:12px;padding:8px;overflow:hidden}
+  #spchart{width:100%;height:520px;display:block}
+  .quadlegend{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-top:15px}
+  @media(max-width:820px){.quadlegend{grid-template-columns:repeat(2,1fr)}}
+  .qitem{border-radius:11px;padding:13px 15px;border-left:4.5px solid;font-size:13px}
+  .qitem h4{font-size:14.5px;margin-bottom:3px;display:flex;align-items:center;gap:7px}
+  .qitem .cnt{background:rgba(0,0,0,.07);padding:1px 8px;border-radius:11px;font-size:11.5px;font-weight:700}
+  .qitem p{color:var(--ink2);font-size:12.5px;margin:4px 0 6px}
+  .qitem .lst{font-size:11.5px;color:var(--ink2);line-height:1.65}
+
+  .tgt{background:var(--cream);border-radius:11px;padding:15px 17px;font-size:13px;
+    border:1px solid var(--line)}
+  .tgt b{color:var(--red)}
+  .tips li{font-size:13px;color:var(--ink2);margin:5px 0 0 17px}
+
+  /* 门店 */
+  .storecard{border:1.5px solid var(--line);border-radius:12px;padding:15px;cursor:pointer;
+    transition:.15s;background:#fff}
+  .storecard:hover{border-color:var(--red);transform:translateY(-2px);box-shadow:var(--shadow)}
+  .storecard .nm{font-weight:700;font-size:14.5px;margin-bottom:3px}
+  .storecard .ad{font-size:12.5px;color:var(--ink2)}
+  .storecard .code{font-size:11px;color:#A89A90;margin-top:6px;font-family:ui-monospace,monospace}
+  .scgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+
+  /* 菜单 */
+  .catbar{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:14px;
+    border-bottom:2px solid var(--line)}
+  .catbar button{background:var(--cream);border:1.5px solid var(--line);border-radius:20px;
+    padding:6px 15px;font-size:13px;cursor:pointer;white-space:nowrap;font-family:inherit}
+  .catbar button.on{background:var(--red);color:#fff;border-color:var(--red);font-weight:700}
+  .menugrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:13px}
+  .mitem{border:1.5px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;
+    cursor:pointer;transition:.15s;display:flex;flex-direction:column}
+  .mitem:hover{border-color:var(--red);box-shadow:var(--shadow)}
+  .mitem.picked{border-color:var(--gold);box-shadow:0 0 0 2.5px rgba(255,199,44,.4)}
+  .mitem .ph{height:112px;background:var(--cream);display:grid;place-items:center;overflow:hidden}
+  .mitem .ph img{width:100%;height:100%;object-fit:cover}
+  .mitem .bd{padding:10px 12px;flex:1;display:flex;flex-direction:column;gap:6px}
+  .mitem .nm{font-size:13.5px;font-weight:700;line-height:1.35}
+  .mitem .pr{font-size:16px;font-weight:800;color:var(--red)}
+  .mitem .pr s{font-size:11.5px;color:#B5A89E;font-weight:400;margin-left:5px}
+  .mitem .mt{display:flex;gap:5px;flex-wrap:wrap}
+  .chip{font-size:10.5px;padding:2px 7px;border-radius:5px;font-weight:600}
+  .nutro{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;font-size:10px;color:var(--ink2);
+    border-top:1px dashed var(--line);padding-top:6px}
+  .nutro b{display:block;font-size:11.5px;color:var(--ink)}
+  .comps{font-size:10px;color:var(--ink2);margin-top:4px;line-height:1.5}
+  .comps i{font-style:normal;background:var(--line);border-radius:4px;padding:1px 5px;
+    margin:2px 3px 0 0;display:inline-block}
+
+  .cartbar{position:sticky;bottom:0;background:var(--ink);color:#fff;border-radius:13px;
+    padding:13px 18px;display:flex;align-items:center;gap:15px;box-shadow:0 -4px 18px rgba(0,0,0,.18);
+    margin-top:18px;z-index:20}
+  .cartbar .n{font-size:13px}
+  .cartbar .n b{color:var(--gold)}
+  .cartbar .tot{margin-left:auto;font-size:21px;font-weight:800;color:var(--gold)}
+  .cartbar .btn{padding:9px 20px}
+
+  .coup{border:1.5px solid var(--line);border-radius:11px;padding:13px;display:flex;gap:12px;
+    align-items:center;background:#fff}
+  .coup img{width:76px;height:58px;object-fit:cover;border-radius:8px;background:var(--cream)}
+  .coup .cn{font-size:13.5px;font-weight:700}
+  .coup .cs{font-size:11.5px;color:var(--ink2);margin-top:2px}
+  .tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:5px;font-weight:700}
+
+  /* 图表 */
+  .chartbox{width:100%;height:250px}
+  .rec{border:1.5px solid var(--line);border-radius:12px;padding:15px;background:#fff}
+  .rec.best{border-color:var(--gold);box-shadow:0 0 0 2.5px rgba(255,199,44,.3)}
+  .rec h4{font-size:15px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .rec .rank{width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;
+    display:grid;place-items:center;font-size:12px;font-weight:800}
+  .rec .tot{font-size:12.5px;color:var(--ink2);margin:7px 0 10px;
+    background:var(--cream);padding:8px 11px;border-radius:8px}
+  .ritem{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;
+    border-bottom:1px dashed var(--line)}
+  .ritem b{color:var(--red)}
+  .warn{background:#FFF4E5;border-left:3.5px solid var(--q-treat);padding:8px 11px;
+    border-radius:6px;font-size:12px;color:#8A5A22;margin-top:7px}
+
+  .empty{text-align:center;padding:50px 20px;color:var(--ink2)}
+  .empty .big{font-size:42px;margin-bottom:12px}
+  .loading{text-align:center;padding:36px;color:var(--ink2);font-size:14px}
+  .spin{display:inline-block;width:15px;height:15px;border:2.5px solid var(--line);
+    border-top-color:var(--red);border-radius:50%;animation:sp .7s linear infinite;
+    vertical-align:-2px;margin-right:7px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .toast{position:fixed;top:74px;right:22px;background:var(--ink);color:#fff;
+    padding:12px 18px;border-radius:10px;font-size:13.5px;z-index:99;max-width:400px;
+    box-shadow:0 6px 22px rgba(0,0,0,.24);animation:sl .24s ease}
+  @keyframes sl{from{transform:translateX(26px);opacity:0}}
+  .err{background:#FDECEA;border-left:4px solid var(--q-edge);padding:12px 15px;
+    border-radius:8px;font-size:13px;color:#8B2820;margin-top:13px}
+  .cmp{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:11px}
+  .cmp th,.cmp td{border:1px solid var(--line);padding:6px 9px;text-align:center}
+  .cmp th{background:var(--cream);font-weight:700}
+  .cmp td:first-child,.cmp th:first-child{text-align:left;font-weight:600}
+  .backbtn{background:none;border:0;color:var(--red);cursor:pointer;font-size:13.5px;
+    font-family:inherit;padding:0;margin-bottom:12px;font-weight:600}
+  .backbtn:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="m-logo">M</div>
+    <div><h1>麦当劳营养膳食专家</h1><small>SP MATRIX · NUTRITION & ORDERING</small></div>
+  </div>
+  <nav class="nav" id="nav">
+    <button data-v="profile" class="on">① 建档</button>
+    <button data-v="matrix">② SP矩阵选型</button>
+    <button data-v="recommend">③ 套餐推荐</button>
+    <button data-v="stores">④ 门店点餐</button>
+    <button data-v="health">⑤ 健康可视化</button>
+  </nav>
+  <div class="hpill" id="hpill">检测中…</div>
+</div>
+
+<div class="wrap">
+
+<!-- ========== ① 建档 ========== -->
+<section class="view on" id="v-profile">
+  <div class="card">
+    <h3>建立你的营养档案</h3>
+    <div class="sub">基于 Mifflin-St Jeor 公式计算基础代谢，按 FAO/WHO 活动系数换算总消耗，
+      再按 ACSM 建议分配三大营养素。档案仅保存在本机 SQLite，不上传任何服务器。</div>
+    <div class="formrow">
+      <label class="f"><span>性别</span><select id="f-gender">
+        <option value="male">男</option><option value="female">女</option></select></label>
+      <label class="f"><span>年龄</span><input id="f-age" type="number" value="28" min="10" max="100"/></label>
+      <label class="f"><span>身高 (cm)</span><input id="f-height" type="number" value="175" step="0.5"/></label>
+      <label class="f"><span>体重 (kg)</span><input id="f-weight" type="number" value="72" step="0.5"/></label>
+    </div>
+    <div class="formrow" style="margin-top:12px">
+      <label class="f"><span>日常活动量</span><select id="f-activity"></select></label>
+      <label class="f"><span>目标模式</span><select id="f-goal"></select></label>
+      <label class="f"><span>体脂率 %（选填）</span><input id="f-bf" type="number" step="0.1" placeholder="用 Katch-McArdle 公式更精确"/></label>
+      <div style="display:flex;align-items:flex-end">
+        <button class="btn" id="btn-target" style="width:100%">计算我的营养目标</button></div>
+    </div>
+    <div id="target-out"></div>
+  </div>
+</section>
+
+<!-- ========== ② SP 矩阵 ========== -->
+<section class="view" id="v-matrix">
+  <div class="card">
+    <h3>SP 矩阵 · 餐品选型定位</h3>
+    <div class="sub">横轴 = 营养密度（蛋白质+碳水 / 热量，越右越饱腹高效）；
+      纵轴 = 钠负担（钠 / 热量，越上钠负荷越重）。金色十字 = 你的目标点。
+      距离目标点越近的餐品，越贴合你的营养处方。</div>
+    <div class="spwrap"><canvas id="spchart"></canvas></div>
+    <div class="quadlegend" id="quadlegend"></div>
+  </div>
+  <div class="grid2" style="margin-top:18px">
+    <div class="card"><h3>你的目标点</h3><div id="sp-target" class="tgt">请先在「建档」中计算营养目标。</div></div>
+    <div class="card"><h3>饮食策略</h3><ul class="tips" id="sp-tips"></ul></div>
+  </div>
+  <div class="card" style="margin-top:18px">
+    <h3>最贴合的单品（按 SP 贴合度排序）</h3>
+    <div class="sub">在满足象限多样性约束的前提下，优先推荐主力区单品。</div>
+    <div id="sp-recs" class="grid3"></div>
+  </div>
+</section>
+
+<!-- ========== ③ 套餐推荐 ========== -->
+<section class="view" id="v-recommend">
+  <div class="card">
+    <h3>个性化套餐推荐</h3>
+    <div class="sub">多目标约束求解：热量 26% · 蛋白 28% · 碳水 13% · 脂肪 11% · 钠 14% · 饱腹 8%，
+      硬约束为「必须含主餐 + 总热量落在目标 60%–130% + 钠不超上限」。</div>
+    <button class="btn" id="btn-recommend">生成本命套餐</button>
+    <div id="rec-out" style="margin-top:16px"></div>
+  </div>
+</section>
+
+<!-- ========== ④ 门店点餐 ========== -->
+<section class="view" id="v-stores">
+  <div id="store-list-view">
+    <div class="card">
+      <h3>选择门店</h3>
+      <div class="sub">点击门店进入店内菜单 —— 菜单上每个餐品都会标注它在 SP 矩阵中的位置与营养摘要。</div>
+      <div class="formrow" style="grid-template-columns:1fr 1fr auto">
+        <label class="f"><span>取餐方式</span><select id="f-betype">
+          <option value="1">到店自取</option><option value="5">得来速车道取餐</option></select></label>
+        <label class="f"><span>城市（选填）</span><input id="f-city" placeholder="如 沈阳"/></label>
+        <div style="display:flex;align-items:flex-end">
+          <button class="btn" id="btn-stores">查询门店</button></div>
+      </div>
+      <div id="stores-out" class="scgrid" style="margin-top:16px"></div>
+    </div>
+  </div>
+
+  <div id="menu-view" style="display:none">
+    <button class="backbtn" id="btn-back">← 返回门店列表</button>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:15px;flex-wrap:wrap">
+        <div><h3 id="m-title">门店菜单</h3><div class="sub" id="m-sub"></div></div>
+        <div style="display:flex;gap:9px">
+          <button class="btn ghost" id="btn-coupons">查看优惠券</button>
+          <button class="btn gold" id="btn-calc">计算价格</button>
+        </div>
+      </div>
+      <div class="catbar" id="catbar"></div>
+      <div class="menugrid" id="menu-grid"></div>
+      <div class="cartbar">
+        <div class="n">已选 <b id="cart-n">0</b> 项</div>
+        <div class="tot" id="cart-tot">¥0.00</div>
+        <button class="btn ghost" id="btn-clear">清空</button>
+        <button class="btn" id="btn-order">去下单</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="coupon-view" style="display:none">
+    <button class="backbtn" id="btn-coup-back">← 返回菜单</button>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div><h3>优惠券</h3><div class="sub">「一键领券」会领取麦麦省当前所有可领券；下单时填写 couponId 可直接抵扣。</div></div>
+        <button class="btn gold" id="btn-claim">一键领券</button>
+      </div>
+      <div id="coup-out" style="margin-top:16px;display:flex;flex-direction:column;gap:11px"></div>
+    </div>
+  </div>
+
+  <div id="order-view" style="display:none">
+    <button class="backbtn" id="btn-order-back">← 返回菜单</button>
+    <div class="card"><h3>确认订单</h3><div id="order-out"></div></div>
+  </div>
+</section>
+
+<!-- ========== ⑤ 健康可视化 ========== -->
+<section class="view" id="v-health">
+  <div class="card">
+    <h3>健康可视化</h3>
+    <div class="sub">每次下单后自动记入当日摄入，绘制体重趋势与热量收支曲线。
+      数据存于本机 SQLite（data/health.db），可随时删除。</div>
+    <div class="kpis" id="h-kpis"></div>
+  </div>
+  <div class="grid2" style="margin-top:18px">
+    <div class="card"><h3>体重趋势</h3><canvas class="chartbox" id="chart-weight"></canvas></div>
+    <div class="card"><h3>热量收支</h3><canvas class="chartbox" id="chart-kcal"></canvas></div>
+  </div>
+  <div class="grid2" style="margin-top:18px">
+    <div class="card"><h3>SP 象限分布</h3><canvas class="chartbox" id="chart-quad"></canvas></div>
+    <div class="card">
+      <h3>记录体重</h3>
+      <div class="formrow" style="grid-template-columns:1fr 1fr auto">
+        <label class="f"><span>日期</span><input id="w-date" type="date"/></label>
+        <label class="f"><span>体重 (kg)</span><input id="w-val" type="number" step="0.1" value="72"/></label>
+        <div style="display:flex;align-items:flex-end"><button class="btn" id="btn-weight">记录</button></div>
+      </div>
+      <h3 style="margin-top:22px">最近记录</h3>
+      <div id="h-recent" style="font-size:13px"></div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ============================================================
+   麦当劳营养膳食专家 · 前端
+   —— SP 矩阵用原生 Canvas 绘制（零第三方依赖，离线可用）
+   ============================================================ */
+const API = '';
+let PROFILE = null;          // 当前档案
+let TARGET = null;           // 营养目标
+let MATRIX = null;           // SP 矩阵数据
+let CUR_STORE = null;        // 当前门店
+let CUR_CATS = [];           // 菜单分类
+let CART = {};               // 购物车 {code: qty}
+let SPCHARTS = [];
+
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const fmtY = n => '¥' + (Math.round(n*100)/100).toFixed(2);
+
+function toast(msg, ms=3200){
+  const d = document.createElement('div');
+  d.className='toast'; d.textContent=msg;
+  document.body.appendChild(d);
+  setTimeout(()=>d.remove(), ms);
+}
+async function api(path, opts){
+  const r = await fetch(API+path, opts);
+  if(!r.ok){
+    let d='HTTP '+r.status;
+    try{ const j = await r.json(); d = j.detail || d; }catch(e){}
+    throw new Error(d);
+  }
+  return r.json();
+}
+const post = (p,b)=>api(p,{method:'POST',headers:{'Content-Type':'application/json'},
+  body:JSON.stringify(b||{})});
+
+/* ---------- 导航 ---------- */
+$$('#nav button').forEach(b=>{
+  b.onclick=()=>{
+    $$('#nav button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    $$('.view').forEach(v=>v.classList.remove('on'));
+    $('#v-'+b.dataset.v).classList.add('on');
+    if(b.dataset.v==='matrix') loadMatrix();
+    if(b.dataset.v==='health') loadHealth();
+  };
+});
+
+/* ---------- 健康检查 ---------- */
+(async()=>{
+  try{
+    const h = await api('/api/health');
+    const p = $('#hpill');
+    if(h.ok){
+      p.textContent = 'MCP 已连接 · '+ (h.detail.nutrition_items||0) + ' 条营养数据';
+      p.className='hpill ok';
+    }else{
+      p.textContent = 'MCP 未连接';
+      p.className='hpill bad';
+    }
+  }catch(e){
+    $('#hpill').textContent='服务未启动'; $('#hpill').className='hpill bad';
+  }
+  // 载入下拉
+  try{
+    const t = await post('/api/target',{gender:'male',age:28,height_cm:175,
+      weight_kg:72,activity:'light',goal:'maintain'});
+    fillSelect('#f-activity', t.activity_levels);
+    fillSelect('#f-goal', t.goals);
+    // 用与表单默认值一致的档案预置 PROFILE，
+    // 这样首次打开 SP 矩阵就有目标点（否则 fit 恒为 0、矩阵无参考价值）
+    PROFILE = readProfile();
+    TARGET = t.target;
+    loadMatrix();
+  }catch(e){}
+})();
+function fillSelect(sel, obj){
+  const el=$(sel); el.innerHTML='';
+  for(const k in obj){
+    const o=document.createElement('option');
+    o.value=k; o.textContent=obj[k].label; el.appendChild(o);
+  }
+}
+
+/* ---------- 档案与目标 ---------- */
+$('#btn-target').onclick = async ()=>{
+  const body = readProfile();
+  try{
+    const r = await post('/api/target', body);
+    PROFILE = body; TARGET = r.target;
+    renderTarget(r);
+    $('#hpill').textContent = '目标 '+r.target.target_kcal+' kcal · 蛋白 '+r.target.protein_g+'g';
+    // 档案变了，SP 矩阵的目标点 / 贴合度随之变化 → 立即重算
+    loadMatrix();
+  }catch(e){ toast('计算失败：'+e.message); }
+};
+function readProfile(){
+  const bf = $('#f-bf').value.trim();
+  return {gender:$('#f-gender').value, age:+$('#f-age').value,
+    height_cm:+$('#f-height').value, weight_kg:+$('#f-weight').value,
+    activity:$('#f-activity').value, goal:$('#f-goal').value,
+    body_fat_pct: bf? +bf : null};
+}
+function profileQS(){
+  if(!PROFILE) return '';
+  const p=PROFILE;
+  return [p.gender,p.age,p.height_cm,p.weight_kg,p.activity,p.goal,
+    p.body_fat_pct??''].join(',');
+}
+function renderTarget(r){
+  const t=r.target;
+  const pct=(a,b)=>b?Math.round(a/b*100):0;
+  $('#target-out').innerHTML = `
+    <div class="kpis">
+      <div class="kpi"><div class="k">BMI</div><div class="v">${t.bmi}<small> ${t.bmi_label}</small></div>
+        <div class="d">理想体重约 ${t.ideal_weight_kg} kg</div></div>
+      <div class="kpi g"><div class="k">基础代谢 BMR</div><div class="v">${t.bmr}<small> kcal</small></div>
+        <div class="d">${t.activity_label}</div></div>
+      <div class="kpi o"><div class="k">总消耗 TDEE</div><div class="v">${t.tdee}<small> kcal</small></div>
+        <div class="d">${t.goal_label}</div></div>
+      <div class="kpi r"><div class="k">目标热量</div><div class="v">${t.target_kcal}<small> kcal</small></div>
+        <div class="d">达成率 ${pct(t.target_kcal,t.tdee)}% of TDEE</div></div>
+      <div class="kpi b"><div class="k">蛋白质</div><div class="v">${t.protein_g}<small> g</small></div>
+        <div class="d">${t.protein_g*4} kcal · ${pct(t.protein_g*4,t.target_kcal)}%</div></div>
+      <div class="kpi b"><div class="k">碳水</div><div class="v">${t.carb_g}<small> g</small></div>
+        <div class="d">${t.carb_g*4} kcal · ${pct(t.carb_g*4,t.target_kcal)}%</div></div>
+      <div class="kpi b"><div class="k">脂肪</div><div class="v">${t.fat_g}<small> g</small></div>
+        <div class="d">${t.fat_g*9} kcal · ${pct(t.fat_g*9,t.target_kcal)}%</div></div>
+      <div class="kpi r"><div class="k">钠上限</div><div class="v">${t.sodium_limit_mg}<small> mg</small></div>
+        <div class="d">约 ${Math.round(t.sodium_limit_mg*2.5/1000)} g 食盐</div></div>
+    </div>
+    <div class="tgt" style="margin-top:14px">
+      ${t.notes.map(n=>'· '+n).join('<br/>')}
+    </div>`;
+}
+
+/* ---------- SP 矩阵 ---------- */
+const QCOLORS = {sweet_point:'#2E9E5B', treat:'#E8833A',
+                 double_edge:'#C0392B', filler:'#4A7FB5'};
+
+async function loadMatrix(){
+  try{
+    MATRIX = await api('/api/matrix'+ (PROFILE?('?profile='+encodeURIComponent(profileQS())):''));
+    renderQuadrants();
+    drawSP();
+    renderSPTarget();
+    renderSPRecs();
+  }catch(e){ toast('SP 矩阵加载失败：'+e.message); }
+}
+function renderQuadrants(){
+  const q = MATRIX.quadrants;
+  const order=['sweet_point','double_edge','treat','filler'];
+  $('#quadlegend').innerHTML = order.map(k=>{
+    const m=q[k]; if(!m) return '';
+    return `<div class="qitem" style="border-color:${m.color};background:${m.color}0F">
+      <h4><span style="color:${m.color}">●</span>${m.label}
+        <span class="en" style="font-size:11px;color:#A89A90;font-weight:400">${m.en}</span>
+        <span class="cnt">${m.count}</span></h4>
+      <p>${m.desc}</p>
+      <div class="lst">${(m.items||[]).slice(0,7).join(' · ')}</div></div>`;
+  }).join('');
+}
+function renderSPTarget(){
+  if(!MATRIX || !MATRIX.target_point){ return; }
+  const t=MATRIX.target_point, a=MATRIX.axes;
+  $('#sp-target').innerHTML =
+    `你的目标点位于 <b>营养密度 ${t.x} g/100kcal</b>、<b>钠负担 ${t.y} mg/100kcal</b>。<br/>
+     象限分界线：营养密度 <b>${a.x.threshold}</b>，钠负担 <b>${a.y.threshold}</b>。<br/>
+     <span style="color:var(--ink2)">点在目标点<b>右下方</b>的餐品更优 —— 营养更足、钠更低。</span>`;
+}
+function renderSPRecs(){
+  const rs = MATRIX.recommend||[];
+  if(!rs.length){ $('#sp-recs').innerHTML='<div class="empty">请先建立档案</div>'; return; }
+  $('#sp-recs').innerHTML = rs.map(r=>`
+    <div class="rec" style="border-left:4.5px solid ${r.quadrant_color}">
+      <h4>${r.name}</h4>
+      <div style="font-size:12px;color:var(--ink2);margin-bottom:8px">
+        ${r.kcal} kcal · 蛋白 ${r.protein}g · 钠 ${r.sodium}mg</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span class="chip" style="background:${r.quadrant_color}1E;color:${r.quadrant_color}">${r.quadrant_label}</span>
+        <span class="chip" style="background:#FFF0D0;color:#8A6D1F">贴合度 ${Math.round(r.fit*100)}%</span>
+      </div>
+      <div style="font-size:12px;color:var(--ink2);margin-top:9px;line-height:1.6">${r.quadrant_advice}</div>
+    </div>`).join('');
+}
+
+/* ---- SP 矩阵 Canvas 绘制 ---- */
+function drawSP(){
+  const cv=$('#spchart'); if(!cv || !MATRIX) return;
+  const dpr=window.devicePixelRatio||1;
+  const W=cv.clientWidth, H=cv.clientHeight;
+  cv.width=W*dpr; cv.height=H*dpr;
+  const g=cv.getContext('2d'); g.scale(dpr,dpr);
+  g.clearRect(0,0,W,H);
+
+  const pad={l:64,r:22,t:22,b:52};
+  const pw=W-pad.l-pad.r, ph=H-pad.t-pad.b;
+  const ax=MATRIX.axes, th=MATRIX.thresholds;
+  const maxX=ax.x.max, maxY=ax.y.max;
+
+  // 象限底色
+  const quads=[
+    {x:0,y:0,w:th.x,  h:th.y,  c:'#FBE9DC'},  // 左下 解馋区
+    {x:th.x,y:0,w:maxX-th.x,h:th.y,c:'#E4F1E8'}, // 右下 主力区
+    {x:0,y:th.y,w:th.x,h:maxY-th.y,c:'#F6EFE4'}, // 左上 填充区
+    {x:th.x,y:th.y,w:maxX-th.x,h:maxY-th.y,c:'#FBE4E1'}, // 右上 双刃区
+  ];
+  quads.forEach(q=>{
+    g.fillStyle=q.c;
+    g.fillRect(pad.l+q.w/maxX*pw, pad.t+q.h/maxY*ph,
+               q.w/maxX*pw, q.h/maxY*ph);
+  });
+  // 象限标签
+  g.font='600 12px "PingFang SC",sans-serif';
+  g.fillStyle='rgba(0,0,0,.34)';
+  const lbl=[['解馋区',0,th.y,th.x,0],['主力区',th.x,th.y,maxX,0],
+             ['填充区',0,0,th.x,maxY],['双刃区',th.x,0,maxX,maxY]];
+  lbl.forEach(([t,x,y])=>{
+    const px=pad.l+(x/maxX)*pw+8, py=pad.t+(y/maxY)*ph+16;
+    g.fillText(t,px,py);
+  });
+  // 分界线
+  g.strokeStyle='rgba(0,0,0,.2)'; g.setLineDash([5,4]); g.lineWidth=1;
+  g.beginPath();
+  g.moveTo(pad.l+th.x/maxX*pw,pad.t); g.lineTo(pad.l+th.x/maxX*pw,pad.t+ph);
+  g.moveTo(pad.l,pad.t+th.y/maxY*ph); g.lineTo(pad.l+pw,pad.t+th.y/maxY*ph);
+  g.stroke(); g.setLineDash([]);
+
+  // 网格
+  g.strokeStyle='rgba(0,0,0,.07)'; g.lineWidth=1;
+  for(let i=0;i<=5;i++){
+    const y=pad.t+ph*i/5; g.beginPath(); g.moveTo(pad.l,y); g.lineTo(pad.l+pw,y); g.stroke();
+    const x=pad.l+pw*i/5; g.beginPath(); g.moveTo(x,pad.t); g.lineTo(x,pad.t+ph); g.stroke();
+  }
+
+  // 点
+  const pts=MATRIX.points;
+  const hasTarget = MATRIX.target_point;
+  pts.forEach(p=>{
+    const cx=pad.l+(p.x/maxX)*pw, cy=pad.t+ph-(p.y/maxY)*ph;
+    const r = hasTarget ? 3.5 + p.fit*6 : 4.5;
+    g.fillStyle = QCOLORS[p.quadrant]||'#999';
+    g.globalAlpha = hasTarget ? 0.35+p.fit*0.6 : 0.7;
+    g.beginPath(); g.arc(cx,cy,r,0,Math.PI*2); g.fill();
+    g.globalAlpha=1;
+  });
+
+  // 目标点十字
+  if(hasTarget){
+    const t=MATRIX.target_point;
+    const cx=pad.l+(t.x/maxX)*pw, cy=pad.t+ph-(t.y/maxY)*ph;
+    g.strokeStyle='#DA291C'; g.lineWidth=2.5;
+    g.beginPath();
+    g.moveTo(cx-13,cy); g.lineTo(cx+13,cy);
+    g.moveTo(cx,cy-13); g.lineTo(cx,cy+13);
+    g.stroke();
+    g.fillStyle='#DA291C';
+    g.beginPath(); g.arc(cx,cy,4.5,0,Math.PI*2); g.fill();
+    g.font='700 11.5px "PingFang SC",sans-serif';
+    g.fillText('你的目标点', cx+15, cy+4);
+  }
+
+  // 坐标轴
+  g.strokeStyle='#5A4E48'; g.lineWidth=1.5;
+  g.beginPath();
+  g.moveTo(pad.l,pad.t); g.lineTo(pad.l,pad.t+ph); g.lineTo(pad.l+pw,pad.t+ph);
+  g.stroke();
+  g.fillStyle='#5A4E48'; g.font='600 12.5px "PingFang SC",sans-serif';
+  g.fillText(ax.x.label+' ('+ax.x.unit+')', pad.l+pw/2-70, H-18);
+  g.save(); g.translate(15, pad.t+ph/2+50); g.rotate(-Math.PI/2);
+  g.fillText(ax.y.label+' ('+ax.y.unit+')', 0, 0); g.restore();
+
+  // 刻度
+  g.font='10.5px sans-serif'; g.fillStyle='#A89A90';
+  for(let i=0;i<=5;i++){
+    const x=pad.l+pw*i/5, y=pad.t+ph-(ph*i/5);
+    g.fillText((maxX*i/5).toFixed(1), x-8, pad.t+ph+16);
+    g.fillText((maxY*i/5).toFixed(1), pad.l-46, y+4);
+  }
+  SPCHARTS.push({g,pad,pw,ph,maxX,maxY,pts});
+}
+
+/* ---------- 套餐推荐 ---------- */
+$('#btn-recommend').onclick = async ()=>{
+  if(!PROFILE){ toast('请先在「建档」中计算营养目标'); return; }
+  $('#rec-out').innerHTML='<div class="loading"><span class="spin"></span>正在求解最优套餐…</div>';
+  try{
+    const r = await post('/api/recommend', PROFILE);
+    TARGET=r.target;
+    if(!r.combos.length){
+      $('#rec-out').innerHTML='<div class="err">在当前约束下未找到可行套餐，'
+        +'可放宽目标模式（改为「维持」）或降低活动量后重试。</div>';
+      return;
+    }
+    $('#rec-out').innerHTML = r.combos.map((c,i)=>{
+      // ⚠️ 方案是「一餐」，目标列必须用单餐口径，
+      //    否则「方案 637 kcal vs 全天目标 1771 kcal」永远显示 36% 贴合，
+      //    用户会误以为方案不达标。
+      const dt=c.day_target||{};
+      const mt=dt.meal_target_kcal||Math.round(r.target.target_kcal*0.34);
+      const mp=Math.round(r.target.protein_g*0.34);
+      const mc=Math.round(r.target.carb_g*0.34);
+      const mf=Math.round(r.target.fat_g*0.34);
+      const share=dt.meal_kcal_share||Math.round(c.totals.kcal/r.target.target_kcal*100);
+      return `
+      <div class="rec ${i===0?'best':''}" style="margin-bottom:15px">
+        <h4><span class="rank">${i+1}</span>方案${i===0?'（最优贴合）':''}
+          <span style="margin-left:auto;font-size:12px;color:var(--ink2);font-weight:400">
+            得分 ${(c.score*100).toFixed(1)}</span></h4>
+        <div class="tot">${c.totals.kcal} kcal · 蛋白 ${c.totals.protein_g}g ·
+          碳水 ${c.totals.carb_g}g · 脂肪 ${c.totals.fat_g}g · 钠 ${c.totals.sodium_mg}mg</div>
+        <div style="font-size:11.5px;color:var(--ink2);margin-top:4px">
+          本餐占全天目标 ${share}% · 单餐热量目标 ${mt} kcal
+        </div>
+        ${c.items.map(it=>`<div class="ritem"><span>${it.name}
+          <span class="chip" style="background:#F3EDE3;color:#8A7B6C;margin-left:6px">${it.category}</span></span>
+          <b>${it.kcal} kcal</b></div>`).join('')}
+        <div style="margin-top:11px;display:flex;gap:6px;flex-wrap:wrap">
+          ${c.tags.map(t=>`<span class="chip" style="background:#FFF0D0;color:#8A6D1F">${t}</span>`).join('')}
+        </div>
+        ${c.warnings.map(w=>`<div class="warn">${w}</div>`).join('')}
+        <div style="margin-top:11px">
+          <table class="cmp"><tr><th>维度</th><th>本方案</th><th>单餐目标</th><th>贴合</th></tr>
+          <tr><td>热量</td><td>${c.totals.kcal}</td><td>${mt}
+            <td>${Math.round((c.explain.calorie||0)*100)}%</td></tr>
+          <tr><td>蛋白质</td><td>${c.totals.protein_g}g</td><td>${mp}g
+            <td>${Math.round((c.explain.protein||0)*100)}%</td></tr>
+          <tr><td>碳水</td><td>${c.totals.carb_g}g</td><td>${mc}g
+            <td>${Math.round((c.explain.carb||0)*100)}%</td></tr>
+          <tr><td>脂肪</td><td>${c.totals.fat_g}g</td><td>${mf}g
+            <td>${Math.round((c.explain.fat||0)*100)}%</td></tr>
+          <tr><td>钠友好</td><td>${c.totals.sodium_mg}mg</td><td>≤${r.target.sodium_limit_mg}mg（全日）
+            <td>${Math.round((c.explain.sodium||0)*100)}%</td></tr></table>
+        </div>
+      </div>`}).join('')
+      + `<div class="tgt" style="margin-top:6px">${r.tips.map(t=>'→ '+t).join('<br/>')}</div>`;
+  }catch(e){ $('#rec-out').innerHTML='<div class="err">'+e.message+'</div>'; }
+};
+
+/* ---------- 门店 ---------- */
+$('#btn-stores').onclick = async ()=>{
+  const be=+$('#f-betype').value, city=$('#f-city').value.trim();
+  $('#stores-out').innerHTML='<div class="loading"><span class="spin"></span>查询中…</div>';
+  try{
+    const r = await api('/api/stores?be_type='+be+'&search_type=1'
+      +(city?'&city='+encodeURIComponent(city):''));
+    if(!r.stores.length){ $('#stores-out').innerHTML='<div class="empty"><div class="big">🏪</div>没有找到门店，换个城市试试</div>'; return; }
+    $('#stores-out').innerHTML = r.stores.map(s=>`
+      <div class="storecard" data-code="${s.storeCode}" data-name="${s.storeName}"
+        data-becode="${s.beCode||''}" data-res="${s.reservation}">
+        <div class="nm">${s.storeName}</div>
+        <div class="ad">${s.address||''}</div>
+        <div class="code">门店编码 ${s.storeCode}${s.beCode?' · 业务编码 '+s.beCode:''}</div>
+        ${s.reservation?'<div class="tag" style="background:#E4F1E8;color:#2E9E5B;margin-top:7px">支持预约</div>':''}
+      </div>`).join('');
+    $$('#stores-out .storecard').forEach(c=>c.onclick=()=>openStore(c.dataset));
+  }catch(e){ $('#stores-out').innerHTML='<div class="err">'+e.message+'</div>'; }
+};
+
+async function openStore(d){
+  CUR_STORE = {code:d.code, name:d.name, beCode:d.becode||null};
+  $('#store-list-view').style.display='none';
+  $('#menu-view').style.display='block';
+  $('#coupon-view').style.display='none';
+  $('#order-view').style.display='none';
+  $('#m-title').textContent = d.name;
+  $('#m-sub').textContent = '门店编码 '+d.code;
+  $('#menu-grid').innerHTML='<div class="loading" style="grid-column:1/-1"><span class="spin"></span>加载店内菜单…</div>';
+  $('#catbar').innerHTML='';
+  try{
+    const be = +$('#f-betype').value;
+    const r = await api('/api/menu?store_code='+encodeURIComponent(d.code)+'&be_type='+be
+      +(d.becode?'&be_code='+encodeURIComponent(d.becode):'')
+      +(PROFILE?'&profile='+encodeURIComponent(profileQS()):''));
+    CUR_CATS = r.categories;
+    if(!CUR_CATS.length){ $('#menu-grid').innerHTML='<div class="empty">该门店暂无可用菜单</div>'; return; }
+    renderCats();
+    renderMenu(0);
+  }catch(e){ $('#menu-grid').innerHTML='<div class="err">'+e.message+'</div>'; }
+}
+function renderCats(){
+  $('#catbar').innerHTML = CUR_CATS.map((c,i)=>
+    `<button data-i="${i}" class="${i===0?'on':''}">${c.name}</button>`).join('');
+  $$('#catbar button').forEach(b=>b.onclick=()=>{
+    $$('#catbar button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); renderMenu(+b.dataset.i);
+  });
+}
+function renderMenu(ci){
+  const cat=CUR_CATS[ci];
+  $('#menu-grid').innerHTML = cat.items.map(m=>{
+    const sp=m.sp;
+    let chips='';
+    if(sp){
+      const c=QCOLORS[sp.quadrant]||'#888';
+      chips += `<span class="chip" style="background:${c}1E;color:${c}">${
+        {sweet_point:'主力区',treat:'解馋区',double_edge:'双刃区',filler:'填充区'}[sp.quadrant]}</span>`;
+      if(PROFILE) chips += `<span class="chip" style="background:#FFF0D0;color:#8A6D1F">${Math.round(sp.fit*100)}%</span>`;
+    }
+    if(m.is_combo) chips += `<span class="chip" style="background:#EAF3FF;color:#2B6CB0">套餐</span>`;
+    if(m.estimated) chips += `<span class="chip" style="background:#F0F0F0;color:#888">新品估算</span>`;
+    (m.tags||[]).forEach(t=>chips+=`<span class="chip" style="background:#F3EDE3;color:#8A7B6C">${t}</span>`);
+    const nut = sp ? `<div class="nutro">
+      <div>热量<b>${sp.kcal}</b></div><div>蛋白<b>${sp.protein}g</b></div>
+      <div>脂肪<b>${sp.fat}g</b></div><div>钠<b>${sp.sodium}</b></div></div>` : '';
+    // 套餐展开内含单品，让用户看清「三件套」里到底是什么
+    const comps = (m.components&&m.components.length)
+      ? `<div class="comps">含：${m.components.map(c=>`<i>${c}</i>`).join('')}</div>` : '';
+    const img = m.image?`<img src="${m.image}" loading="lazy" onerror="this.parentNode.innerHTML='🍔'" alt=""/>`:'🍔';
+    return `<div class="mitem" data-code="${m.code}" data-q="${m.price_yuan||0}"
+        data-name="${m.name}" data-nm="${m.name}">
+      <div class="ph">${img}</div>
+      <div class="bd">
+        <div class="nm">${m.name}</div>
+        <div class="pr">${m.price_yuan!=null?'¥'+m.price_yuan:'—'}
+          ${m.original_price_yuan!=null&&m.original_price_yuan>m.price_yuan?`<s>¥${m.original_price_yuan}</s>`:''}</div>
+        <div class="mt">${chips}</div>
+        ${comps}
+        ${nut}
+      </div></div>`;
+  }).join('');
+  $$('#menu-grid .mitem').forEach(el=>{
+    el.onclick=()=>{
+      const code=el.dataset.code;
+      CART[code]=(CART[code]||0)+1;
+      el.classList.add('picked');
+      updateCart();
+    };
+  });
+}
+function updateCart(){
+  const n=Object.values(CART).reduce((a,b)=>a+b,0);
+  let tot=0;
+  for(const code in CART){
+    const el=document.querySelector(`.mitem[data-code="${code}"]`);
+    if(el) tot += (parseFloat(el.dataset.q)||0)*CART[code];
+  }
+  $('#cart-n').textContent=n;
+  $('#cart-tot').textContent=fmtY(tot);
+}
+$('#btn-clear').onclick=()=>{
+  CART={}; updateCart();
+  $$('#menu-grid .mitem').forEach(e=>e.classList.remove('picked'));
+};
+$('#btn-back').onclick=()=>{
+  $('#menu-view').style.display='none';
+  $('#store-list-view').style.display='block';
+};
+$('#btn-coup-back').onclick=()=>{
+  $('#coupon-view').style.display='none'; $('#menu-view').style.display='block';
+};
+$('#btn-order-back').onclick=()=>{
+  $('#order-view').style.display='none'; $('#menu-view').style.display='block';
+};
+
+/* ---------- 优惠券 ---------- */
+$('#btn-coupons').onclick = async ()=>{
+  $('#menu-view').style.display='none';
+  $('#coupon-view').style.display='block';
+  $('#coup-out').innerHTML='<div class="loading"><span class="spin"></span>加载中…</div>';
+  try{
+    // ⚠️ 第一个查询参数必须用 '?'，写成 '&' 会拼出
+    //    /api/coupons&store_code=... → FastAPI 404 Not Found
+    const qs = CUR_STORE ? ('?store_code='+encodeURIComponent(CUR_STORE.code)) : '';
+    const r = await api('/api/coupons'+qs);
+    const av=r.available||[];
+    // query-my-coupons 返回的是 {coupons:[...]} 结构，与 available 的数组形态不同
+    const mine=(r.mine&&r.mine.coupons)||r.mine||[];
+    const su=r.store_usable||[];
+    const block=(title,arr)=>{
+      if(!arr.length) return `<div class="sub">${title}：暂无</div>`;
+      return `<div style="font-size:13px;font-weight:700;margin:12px 0 7px">${title}（${arr.length}）</div>`
+        + arr.map(c=>`<div class="coup">
+          <img src="${c.couponImage||c.image||''}" onerror="this.style.visibility='hidden'"/>
+          <div style="flex:1">
+            <div class="cn">${c.couponName||c.title||c.name||'优惠券'}</div>
+            <div class="cs">${c.label||c.couponStatus||c.status||c.subtitle||''}</div>
+            ${c.code?`<div class="cs" style="font-family:ui-monospace,monospace;letter-spacing:.5px">
+              券码 ${c.code}</div>`:''}
+          </div></div>`).join('');
+    };
+    $('#coup-out').innerHTML = block('可领取', av) + block('我的卡包', mine) + block('本店可用', su);
+  }catch(e){ $('#coup-out').innerHTML='<div class="err">'+e.message+'</div>'; }
+};
+$('#btn-claim').onclick = async ()=>{
+  try{
+    const r = await post('/api/coupons/claim',{});
+    toast('领券请求已提交');
+    $('#btn-coupons').onclick();
+  }catch(e){ toast('领券失败：'+e.message); }
+};
+
+/* ---------- 计价 / 下单 ---------- */
+function cartItems(){
+  return Object.keys(CART).map(c=>({productCode:c, quantity:CART[c]}));
+}
+$('#btn-calc').onclick = async ()=>{
+  if(!Object.keys(CART).length){ toast('请先选择餐品'); return; }
+  const be=+$('#f-betype').value;
+  try{
+    const r = await post('/api/cart',{store_code:CUR_STORE.code, items:cartItems(),
+      order_type:1, be_type:be, be_code:CUR_STORE.beCode, need_tableware:false});
+    const pl=r.productList||[];
+    toast(`计价成功：¥${r.price_yuan??0}（${pl.length} 项）`);
+    $('#cart-tot').textContent=fmtY(r.price_yuan||0);
+  }catch(e){ toast('计价失败：'+e.message); }
+};
+$('#btn-order').onclick = async ()=>{
+  if(!Object.keys(CART).length){ toast('请先选择餐品'); return; }
+  const be=+$('#f-betype').value;
+  $('#menu-view').style.display='none';
+  $('#order-view').style.display='block';
+  $('#order-out').innerHTML='<div class="loading"><span class="spin"></span>创建订单中…</div>';
+  try{
+    const r = await post('/api/order',{store_code:CUR_STORE.code, items:cartItems(),
+      take_way_code:'eat-in', order_type:1, be_type:be, be_code:CUR_STORE.beCode,
+      need_tableware:false});
+    const pl=r.productList||[];
+    $('#order-out').innerHTML = `
+      <div class="kpis" style="margin-top:4px">
+        <div class="kpi g"><div class="k">订单状态</div><div class="v" style="font-size:19px">${
+          r.orderStatus||r.status||'已创建'}</div><div class="d">${
+          r.orderNo||r.orderId||''}</div></div>
+        <div class="kpi"><div class="k">应付金额</div><div class="v">¥${r.price_yuan??0}</div>
+          <div class="d">原价 ¥${r.originalPrice_yuan??0}</div></div>
+      </div>
+      <table class="cmp" style="margin-top:14px">
+        <tr><th>餐品</th><th>数量</th><th>小计</th></tr>
+        ${pl.map(p=>`<tr><td>${p.productName}</td><td>${p.quantity}</td>
+          <td>¥${p.subtotal_yuan??0}</td></tr>`).join('')}
+        <tr><td colspan="2" style="text-align:right;font-weight:700">合计</td>
+          <td style="font-weight:800;color:var(--red)">¥${r.price_yuan??0}</td></tr>
+      </table>`;
+    // 记入健康档案
+    await recordMeal(pl, r);
+  }catch(e){
+    $('#order-out').innerHTML='<div class="err">下单失败：'+e.message+'</div>';
+  }
+};
+
+async function recordMeal(pl, r){
+  try{
+    // 用营养表匹配餐品热量
+    const m = await api('/api/matrix');
+    const byName={};
+    m.points.forEach(p=>{byName[p.name]=p;});
+    const items = pl.map(p=>{
+      let n=null;
+      for(const k in byName){ if(k===p.productName||k&&(k.includes(p.productName)||p.productName.includes(k))){n=byName[k];break;} }
+      return {name:p.productName, kcal:n?n.kcal:0, protein:n?n.protein:0,
+              fat:n?n.fat:0, carb:n?n.carb:0, sodium:n?n.sodium:0,
+              category:n?n.category:''};
+    });
+    if(!items.some(i=>i.kcal)){ return; }
+    await post('/api/records',{meal_type:'正餐', items, quadrant:'mixed',
+      store_name:CUR_STORE.name, order_no:r.orderNo||''});
+    toast('已记入健康档案');
+  }catch(e){/* 静默 */}
+}
+
+/* ---------- 健康可视化 ---------- */
+async function loadHealth(){
+  try{
+    const r = await api('/api/records?days=30');
+    const s=r.summary||{};
+    const t=TARGET||{};
+    $('#h-kpis').innerHTML = `
+      <div class="kpi"><div class="k">记录天数</div><div class="v">${s.active_days||0}<small> / ${s.days}</small></div>
+        <div class="d">共 ${s.total_orders||0} 单</div></div>
+      <div class="kpi o"><div class="k">日均摄入</div><div class="v">${s.avg_kcal||0}<small> kcal</small></div>
+        <div class="d">目标 ${s.avg_target_kcal||t.target_kcal||0} kcal</div></div>
+      <div class="kpi r"><div class="k">日均钠</div><div class="v">${s.avg_sodium||0}<small> mg</small></div>
+        <div class="d">上限 ${t.sodium_limit_mg||2000} mg</div></div>
+      <div class="kpi g"><div class="k">钠超标天数</div><div class="v">${s.over_sodium_days||0}<small> 天</small></div>
+        <div class="d">需重点关注</div></div>
+      <div class="kpi b"><div class="k">体重变化</div><div class="v">${
+        s.weight_change==null?'—':(s.weight_change>0?'+':'')+s.weight_change}<small> kg</small></div>
+        <div class="d">区间内累计</div></div>`;
+    drawWeight((r.trend||[]).map(x=>({d:x.log_date,v:x.weight_kg})));
+    drawKcal(r.trend||[]);
+    drawQuad(s.quadrant_dist||{});
+    const rec=r.recent||[];
+    $('#h-recent').innerHTML = rec.length? rec.map(m=>`
+      <div class="ritem"><span>${m.log_date} ${m.meal_type||''}
+        <span class="chip" style="background:#F3EDE3;color:#8A7B6C;margin-left:6px">${m.store_name||''}</span></span>
+        <b>${m.kcal} kcal</b></div>`).join('') : '<div class="sub">还没有记录，去门店点一单吧</div>';
+  }catch(e){ $('#h-kpis').innerHTML='<div class="err">'+e.message+'</div>'; }
+}
+$('#btn-weight').onclick = async ()=>{
+  const d=$('#w-date').value||new Date().toISOString().slice(0,10);
+  try{
+    await post('/api/records/weight',{log_date:d, weight_kg:+$('#w-val').value});
+    toast('已记录体重'); loadHealth();
+  }catch(e){ toast('记录失败：'+e.message); }
+};
+
+/* ---- 轻量折线图（原生 Canvas） ---- */
+function lineChart(id, series, opts){
+  opts=opts||{};
+  const cv=$(id); if(!cv) return;
+  const dpr=window.devicePixelRatio||1;
+  const W=cv.clientWidth, H=cv.clientHeight;
+  cv.width=W*dpr; cv.height=H*dpr;
+  const g=cv.getContext('2d'); g.scale(dpr,dpr);
+  g.clearRect(0,0,W,H);
+  const pad={l:46,r:14,t:14,b:26};
+  const pw=W-pad.l-pad.r, ph=H-pad.t-pad.b;
+  const all=series.flatMap(s=>s.pts.filter(p=>p.v!=null).map(p=>p.v));
+  if(!all.length){ g.fillStyle='#A89A90'; g.font='12px sans-serif';
+    g.fillText('暂无数据', W/2-28, H/2); return; }
+  let mn=Math.min(...all), mx=Math.max(...all);
+  if(mx===mn){ mx=mn+10; mn=Math.max(0,mn-10); }
+  const padY=(mx-mn)*0.12; mn-=padY; mx+=padY;
+  g.strokeStyle='rgba(0,0,0,.08)'; g.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=pad.t+ph*i/4;
+    g.beginPath(); g.moveTo(pad.l,y); g.lineTo(pad.l+pw,y); g.stroke();
+    g.fillStyle='#A89A90'; g.font='10px sans-serif'; g.textAlign='right';
+    g.fillText(Math.round(mx-(mx-mn)*i/4), pad.l-7, y+4);
+  }
+  g.textAlign='left';
+  const n=Math.max(...series.map(s=>s.pts.length));
+  series.forEach(s=>{
+    g.strokeStyle=s.color; g.lineWidth=2.2; g.beginPath();
+    let started=false;
+    s.pts.forEach((p,i)=>{
+      if(p.v==null){ started=false; return; }
+      const x=pad.l+(n<=1?0:i/(n-1))*pw;
+      const y=pad.t+ph-(p.v-mn)/(mx-mn)*ph;
+      if(!started){ g.moveTo(x,y); started=true; } else g.lineTo(x,y);
+    });
+    g.stroke();
+    s.pts.forEach((p,i)=>{
+      if(p.v==null) return;
+      const x=pad.l+(n<=1?0:i/(n-1))*pw;
+      const y=pad.t+ph-(p.v-mn)/(mx-mn)*ph;
+      g.fillStyle=s.color; g.beginPath(); g.arc(x,y,3,0,Math.PI*2); g.fill();
+    });
+  });
+  if(opts.legend){
+    let lx=pad.l;
+    g.font='11px sans-serif';
+    series.forEach(s=>{
+      g.fillStyle=s.color; g.fillRect(lx, H-11, 10, 3);
+      g.fillStyle='#5A4E48'; g.fillText(s.name, lx+14, H-7);
+      lx += 22 + g.measureText(s.name).width;
+    });
+  }
+}
+function drawWeight(pts){
+  lineChart('#chart-weight',[{name:'体重 (kg)', color:'#DA291C',
+    pts:pts.map(p=>({v:p.v}))}],{legend:true});
+}
+function drawKcal(trend){
+  lineChart('#chart-kcal',[
+    {name:'摄入', color:'#E8833A', pts:trend.map(t=>({v:t.consumed_kcal||0}))},
+    {name:'目标', color:'#2E9E5B', pts:trend.map(t=>({v:t.target_kcal}))}
+  ],{legend:true});
+}
+function drawQuad(dist){
+  const names={sweet_point:'主力区',double_edge:'双刃区',treat:'解馋区',filler:'填充区',unknown:'其它',mixed:'混合'};
+  const cv=$('#chart-quad'); if(!cv) return;
+  const dpr=window.devicePixelRatio||1;
+  const W=cv.clientWidth,H=cv.clientHeight;
+  cv.width=W*dpr; cv.height=H*dpr;
+  const g=cv.getContext('2d'); g.scale(dpr,dpr); g.clearRect(0,0,W,H);
+  const keys=Object.keys(dist).filter(k=>dist[k].meals>0);
+  if(!keys.length){ g.fillStyle='#A89A90'; g.font='12px sans-serif';
+    g.fillText('暂无记录', W/2-28, H/2); return; }
+  const maxV=Math.max(...keys.map(k=>dist[k].meals));
+  const pad={l:80,r:20,t:12,b:12};
+  const bh=(H-pad.t-pad.b)/keys.length;
+  keys.forEach((k,i)=>{
+    const y=pad.t+i*bh;
+    const w=(dist[k].meals/maxV)*(W-pad.l-pad.r);
+    g.fillStyle=QCOLORS[k]||'#999';
+    g.fillRect(pad.l,y+bh*0.22,w,bh*0.56);
+    g.fillStyle='#5A4E48'; g.font='12px "PingFang SC",sans-serif';
+    g.fillText((names[k]||k), 10, y+bh*0.58);
+    g.fillStyle='#8A7B6C'; g.font='11px sans-serif';
+    g.fillText(dist[k].meals+' 单 / '+dist[k].kcal+' kcal', pad.l+w+8, y+bh*0.58);
+  });
+}
+
+/* ---------- 初始化 ---------- */
+$('#w-date').value = new Date().toISOString().slice(0,10);
+window.addEventListener('resize',()=>{ if(MATRIX) drawSP(); });
+</script>
+</body>
+</html>

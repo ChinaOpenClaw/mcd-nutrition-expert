@@ -1,0 +1,49 @@
+# ===== 环境变量（含 Token，绝不提交）=====
+.env
+.env.local
+*.env
+!.env.example
+
+# ===== 运行时数据 =====
+data/
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ===== Node / 前端 =====
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+
+# ===== 工具缓存 =====
+.playwright-cli/
+.playwright/
+test-results/
+playwright-report/
+/.shots/
+
+# ===== 编辑器 / 系统 =====
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== 打包产物 =====
+build/
+dist/
+*.egg
+*.whl
