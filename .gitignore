@@ -47,3 +47,11 @@ build/
 dist/
 *.egg
 *.whl
+
+# ===== 视频构建中间产物 =====
+# 成片与音轨体积大且可由 tools/ 流水线复现，不入库；
+# 幻灯片 PNG 与 sp-matrix.svg 保留（可作为幻灯片预览）。
+docs/video/audio/
+docs/video/tmp/
+docs/video/*.mp4
+docs/video/slides/*.mp4

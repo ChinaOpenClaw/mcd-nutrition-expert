@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, initial-scale=1" />
+<title>麦当劳营养膳食专家 · 项目讲解</title>
+<style>
+  :root{
+    --bg1:#0e1014; --bg2:#14171d; --bg3:#1b1f27; --bg4:#232833;
+    --red:#DA291C; --gold:#FFC72C; --green:#2E9E5B; --blue:#4A7FB5; --orange:#E8833A;
+    --txt1:#f2ede4; --txt2:#b6b0a4; --txt3:#6f6a61;
+    --line:rgba(255,255,255,.09);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg1);
+    font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+    color:var(--txt1);}
+  .slide{position:absolute;left:0;top:0;width:1920px;height:1080px;display:none;overflow:hidden;}
+  .slide.on{display:block;}
+  .glow{position:absolute;border-radius:50%;filter:blur(140px);opacity:.24;pointer-events:none;}
+
+  .top{position:absolute;left:0;top:0;width:100%;height:92px;display:flex;
+    align-items:center;padding:0 64px;z-index:5;}
+  .brand{display:flex;align-items:center;gap:14px;font-weight:700;font-size:23px;letter-spacing:1px;}
+  .brand .m{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;
+    background:var(--gold);color:#8c1f18;font-size:22px;font-weight:900;}
+  .chap{margin-left:auto;font-size:19px;color:var(--txt3);letter-spacing:2px;}
+  .rule{position:absolute;left:64px;right:64px;top:92px;height:1px;background:var(--line);}
+  .title{position:absolute;left:64px;top:132px;font-size:54px;font-weight:800;letter-spacing:1px;
+    background:linear-gradient(90deg,#fff,var(--gold));-webkit-background-clip:text;
+    background-clip:text;color:transparent;}
+  .sub{position:absolute;left:66px;top:214px;font-size:23px;color:var(--txt2);max-width:1760px;line-height:1.5;}
+  .content{position:absolute;left:64px;right:64px;top:290px;bottom:150px;}
+  .pageno{position:absolute;right:64px;bottom:36px;font-size:19px;color:var(--txt3);z-index:6;}
+  .footer{position:absolute;left:64px;bottom:36px;font-size:18px;color:var(--txt3);z-index:6;}
+
+  .grid{display:grid;gap:22px;height:100%;}
+  .g2{grid-template-columns:repeat(2,1fr);}
+  .g3{grid-template-columns:repeat(3,1fr);}
+  .g4{grid-template-columns:repeat(4,1fr);}
+  .card{position:relative;border:1px solid var(--line);border-radius:18px;
+    background:linear-gradient(160deg,rgba(255,255,255,.05),rgba(255,255,255,.012));
+    padding:26px 28px;display:flex;flex-direction:column;overflow:hidden;}
+  .card .bar{position:absolute;left:0;top:0;width:6px;height:100%;}
+  .card h3{font-size:28px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:12px;}
+  .card .ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
+    font-size:21px;font-weight:800;flex:none;}
+  .card p{font-size:19.5px;line-height:1.72;color:var(--txt2);}
+  .card p b{color:var(--txt1);font-weight:700;}
+  .card .tags{margin-top:auto;display:flex;flex-wrap:wrap;gap:9px;padding-top:13px;}
+  .tag{font-size:16px;color:var(--txt2);border:1px solid var(--line);border-radius:18px;
+    padding:5px 13px;background:rgba(255,255,255,.03);}
+  .tag.g{color:#5FC98C;border-color:rgba(46,158,91,.4);background:rgba(46,158,91,.1);}
+  .tag.r{color:#E8833A;border-color:rgba(232,131,58,.4);background:rgba(232,131,58,.1);}
+  .tag.y{color:var(--gold);border-color:rgba(255,199,44,.4);background:rgba(255,199,44,.1);}
+
+  .kpi{display:flex;flex-direction:column;gap:6px;}
+  .kpi b{font-size:46px;font-weight:800;line-height:1;}
+  .kpi span{font-size:18px;color:var(--txt3);}
+
+  /* 表格 */
+  table.t{width:100%;border-collapse:collapse;font-size:19.5px;}
+  table.t th{text-align:left;padding:13px 16px;color:var(--txt3);font-weight:600;
+    border-bottom:1px solid var(--line);font-size:17.5px;letter-spacing:.5px;}
+  table.t td{padding:13px 16px;border-bottom:1px solid rgba(255,255,255,.05);color:var(--txt2);}
+  table.t td.hi{color:var(--txt1);font-weight:700;}
+  table.t td.g{color:#5FC98C;font-weight:700;}
+  table.t tr:last-child td{border-bottom:none;}
+
+  /* 封面 */
+  .cover{display:flex;flex-direction:column;justify-content:center;height:100%;padding:0 110px;}
+  .cover .kicker{font-size:25px;letter-spacing:9px;color:var(--gold);margin-bottom:26px;}
+  .cover h1{font-size:132px;font-weight:900;letter-spacing:4px;line-height:1.06;
+    background:linear-gradient(115deg,#fff 8%,var(--gold) 52%,var(--red) 92%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;}
+  .cover .en{font-size:31px;letter-spacing:8px;color:var(--txt2);margin-top:16px;font-weight:600;}
+  .cover .desc{font-size:28px;color:var(--txt1);margin-top:38px;max-width:1500px;line-height:1.62;}
+  .cover .foot{margin-top:44px;display:flex;gap:18px;flex-wrap:wrap;}
+  .pill{font-size:20px;color:var(--txt2);border:1px solid var(--line);border-radius:30px;
+    padding:10px 22px;background:rgba(255,255,255,.03);}
+  .pill b{color:var(--gold);font-weight:700;}
+
+  /* 流程链 */
+  .flow{display:flex;align-items:stretch;gap:0;height:100%;}
+  .fnode{flex:1;position:relative;border:1px solid var(--line);border-radius:16px;
+    background:linear-gradient(150deg,rgba(255,255,255,.05),rgba(255,255,255,.01));
+    padding:22px 20px;display:flex;flex-direction:column;align-items:center;text-align:center;}
+  .fnode .n{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;
+    font-size:23px;font-weight:900;margin-bottom:15px;}
+  .fnode h4{font-size:23px;font-weight:700;margin-bottom:9px;}
+  .fnode p{font-size:17px;color:var(--txt2);line-height:1.6;}
+  .farrow{width:44px;flex:none;display:grid;place-items:center;color:var(--gold);font-size:26px;}
+
+  /* 截图页 */
+  .shot-wrap{position:absolute;left:64px;right:64px;top:282px;bottom:146px;display:flex;gap:34px;}
+  .shot-img{height:100%;border-radius:14px;border:1px solid rgba(255,255,255,.14);
+    object-fit:contain;background:#0b0d11;flex:none;}
+  .shot-side{flex:1;display:flex;flex-direction:column;gap:16px;justify-content:center;}
+  .point{display:flex;gap:15px;align-items:flex-start;}
+  .point .no{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;
+    font-size:16px;font-weight:800;flex:none;margin-top:3px;}
+  .point .tx{font-size:20px;color:var(--txt2);line-height:1.62;}
+  .point .tx b{color:var(--txt1);}
+
+  /* 架构层 */
+  .layer{border:1px solid var(--line);border-radius:15px;padding:16px 24px;
+    display:flex;align-items:center;gap:22px;margin-bottom:13px;
+    background:linear-gradient(100deg,rgba(255,255,255,.05),rgba(255,255,255,.008));}
+  .layer .lab{font-size:20px;font-weight:800;min-width:200px;padding:9px 13px;border-radius:11px;
+    text-align:center;flex:none;}
+  .layer .body{font-size:19px;color:var(--txt2);line-height:1.5;}
+  .layer .body b{color:var(--txt1);}
+
+  .quote{font-size:26px;color:var(--txt1);line-height:1.75;border-left:4px solid var(--gold);
+    padding:8px 0 8px 26px;}
+  .quote em{color:var(--gold);font-style:normal;font-weight:700;}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+</style>
+</head>
+<body>
+
+<!-- 1 封面 -->
+<section class="slide">
+  <div class="glow" style="width:700px;height:700px;background:#DA291C;left:-180px;top:-200px;"></div>
+  <div class="glow" style="width:620px;height:620px;background:#FFC72C;right:-160px;bottom:-220px;opacity:.16"></div>
+  <div class="cover">
+    <div class="kicker">MCDONALD'S NUTRITION DIET EXPERT</div>
+    <h1>麦当劳营养膳食专家</h1>
+    <div class="en">SP 矩阵 · 营养选型 · 点餐闭环</div>
+    <div class="desc">身材管控期也想吃麦当劳？这个专家会帮你根据每日消耗搭配麦麦套餐。<br/>
+      基于麦当劳官方 MCP Server，把「营养计算 → SP 选型 → 套餐推荐 → 门店点餐 → 领券下单 → 健康记录」连成一条闭环。</div>
+    <div class="foot">
+      <span class="pill">35 个官方 MCP 工具</span>
+      <span class="pill"><b>160</b> 个餐品营养数据</span>
+      <span class="pill">菜单 SP 覆盖率 <b>88%</b></span>
+      <span class="pill">零第三方前端依赖</span>
+    </div>
+  </div>
+</section>
+
+<!-- 2 痛点 -->
+<section class="slide">
+  <div class="top"><div class="brand"><span class="m">M</span>麦当劳营养膳食专家</div><div class="chap">01 · 痛点</div></div>
+  <div class="rule"></div>
+  <div class="title">控卡期吃麦当劳，真正的痛点是什么？</div>
+  <div class="sub">不是「不知道吃什么」，而是四个「不知道」</div>
+  <div class="content">
+    <div class="grid g2">
+      <div class="card"><div class="bar" style="background:#DA291C"></div>
+        <h3><span class="ico" style="background:#DA291C;color:#fff">1</span>不知道该吃多少</h3>
+        <p>算出全天目标 <b>1841 kcal</b>，但不知道<b>一餐该占多少</b>。<br/>按全天目标的 100% 去凑一餐，会点成两顿的量。</p>
+        <div class="tags"><span class="tag r">全天目标 ≠ 单餐目标</span></div></div>
+      <div class="card"><div class="bar" style="background:#FFC72C"></div>
+        <h3><span class="ico" style="background:#FFC72C;color:#8c1f18">2</span>不知道该点哪个</h3>
+        <p>门店菜单近 <b>100 个条目</b>，看得见的热量标签为零。<br/>只能靠图片和名字猜，猜错就是一天超支。</p>
+        <div class="tags"><span class="tag y">菜单缺少营养维度</span></div></div>
+      <div class="card"><div class="bar" style="background:#E8833A"></div>
+        <h3><span class="ico" style="background:#E8833A;color:#fff">3</span>不知道哪套搭得值</h3>
+        <p>「三件套」看不出装了什么，勾完才发现<b>全是糖和油</b>。<br/>钠、蛋白、脂肪一个都控制不住。</p>
+        <div class="tags"><span class="tag r">套餐结构黑盒</span></div></div>
+      <div class="card"><div class="bar" style="background:#4A7FB5"></div>
+        <h3><span class="ico" style="background:#4A7FB5;color:#fff">4</span>不知道自己吃过了什么</h3>
+        <p>吃完就忘，<b>热量缺口无从谈起</b>。<br/>体重在涨却不知道是哪几顿吃的。</p>
+        <div class="tags"><span class="tag">缺少饮食台账</span></div></div>
+    </div>
+  </div>
+  <div class="footer">麦当劳营养膳食专家 · 项目讲解</div><div class="pageno">02</div>
+</section>
+
+<!-- 3 SP 矩阵原理 -->
+<section class="slide">
+  <div class="top"><div class="brand"><span class="m">M</span>麦当劳营养膳食专家</div><div class="chap">02 · 核心理论</div></div>
+  <div class="rule"></div>
+  <div class="title">SP 矩阵：从营销学战略定位到饮食定位</div>
+  <div class="sub">经典的 SP（Sweet Point）矩阵用「竞争强度 × 市场地位」划分战略象限。我们把它迁移到了饮食选型上</div>
+  <div class="content">
+    <div class="grid g2" style="grid-template-rows:1fr 1fr;">
+      <div class="card"><div class="bar" style="background:#FFC72C"></div>
+        <h3><span class="ico" style="background:#FFC72C;color:#8c1f18">X</span>营养密度 —— 对应「吸引力」</h3>
+        <p class="mono" style="font-size:21px;color:#5FC98C;margin-bottom:12px">
+          (蛋白质g + 碳水g) ÷ (热量 ÷ 100)</p>
+        <p>每 100 kcal 能换来多少克营养。<br/>用密度而非绝对值，<b>消除了「大份餐热量高所以显得更差」的量纲偏差</b>。</p></div>
+      <div class="card"><div class="bar" style="background:#E8833A"></div>
+        <h3><span class="ico" style="background:#E8833A;color:#fff">Y</span>钠负担 —— 对应「强度」</h3>
+        <p class="mono" style="font-size:21px;color:#F0A96E;margin-bottom:12px">
+          钠mg ÷ (热量 ÷ 100)</p>
+        <p>每 100 kcal 要背多少毫克钠。<br/>这是中式快餐里最难回避的取舍维度。</p></div>
+      <div class="card" style="grid-column:span 2;">
+        <h3>四象限语义</h3>
+        <div class="grid g4" style="height:auto;gap:16px;margin-top:6px;">
+          <div style="padding:16px;border-radius:12px;background:rgba(46,158,91,.12);border:1px solid rgba(46,158,91,.35)">
+            <div style="font-size:22px;font-weight:800;color:#5FC98C;margin-bottom:7px">主力区 ⭐</div>
+            <div style="font-size:17.5px;color:var(--txt2);line-height:1.55">高营养密度 + 低钠负担<br/>控卡期首选，建议常点</div></div>
+          <div style="padding:16px;border-radius:12px;background:rgba(192,57,43,.12);border:1px solid rgba(192,57,43,.35)">
+            <div style="font-size:22px;font-weight:800;color:#E0746A;margin-bottom:7px">双刃区</div>
+            <div style="font-size:17.5px;color:var(--txt2);line-height:1.55">高蛋白但高钠<br/>增肌日可吃，控卡日限一次</div></div>
+          <div style="padding:16px;border-radius:12px;background:rgba(232,131,58,.12);border:1px solid rgba(232,131,58,.35)">
+            <div style="font-size:22px;font-weight:800;color:#F0A96E;margin-bottom:7px">解馋区</div>
+            <div style="font-size:17.5px;color:var(--txt2);line-height:1.55">低营养密度但钠不高<br/>想吃就吃，别当正餐</div></div>
+          <div style="padding:16px;border-radius:12px;background:rgba(74,127,181,.12);border:1px solid rgba(74,127,181,.35)">
+            <div style="font-size:22px;font-weight:800;color:#7BA3CE;margin-bottom:7px">填充区</div>
+            <div style="font-size:17.5px;color:var(--txt2);line-height:1.55">低钠但也缺营养<br/>饱腹陷阱，减脂期避开</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">麦当劳营养膳食专家 · 项目讲解</div><div class="pageno">03</div>
+</section>
+
+<!-- 4 SP 矩阵实图 -->
+<section class="slide">
+  <div class="top"><div class="brand"><span class="m">M</span>麦当劳营养膳食专家</div><div class="chap">02 · 核心理论</div></div>
+  <div class="rule"></div>
+  <div class="title">160 个餐品在矩阵上的真实分布</div>
+  <div class="sub">每个点是一个餐品，金色十字是你的目标点 —— 越靠近它，越贴合你的营养处方</div>
+  <div class="content" style="top:280px;">
+    <div style="display:flex;gap:30px;height:100%;">
+      <div style="flex:none;height:100%;display:flex;align-items:center;">
+        <img src="../docs/video/assets/sp-matrix.svg" style="height:100%;width:auto;" />
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:15px;justify-content:center;">
+        <div class="card" style="padding:20px 24px;">
+          <div class="kpi"><b style="color:#5FC98C">47</b><span>主力区 —— 日常主力</span></div></div>
+        <div class="card" style="padding:20px 24px;">
+          <div class="kpi"><b style="color:#F0A96E">46</b><span>解馋区 —— 情绪价值</span></div></div>
+        <div class="card" style="padding:20px 24px;">
+          <div class="kpi"><b style="color:#7BA3CE">53</b><span>填充区 —— 饱腹陷阱</span></div></div>
+        <div class="card" style="padding:20px 24px;">
+          <div class="kpi"><b style="color:#E0746A">10</b><span>双刃区 —— 高蛋白高钠</span></div></div>
+        <div style="font-size:19px;color:var(--txt2);line-height:1.6;padding-top:6px;">
+          阈值不是写死的常数，而是取全样本的 <b style="color:var(--txt1)">中位数 × 0.6 + P75 × 0.4</b>，
+          避免极端单品拉偏分割线。</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">数据来自官方 list-nutrition-foods 接口实时拉取 · 156 个有效样本</div><div class="pageno">04</div>
+</section>
+
+<!-- 5 营养目标计算 -->
+<section class="slide">
+  <div class="top"><div class="brand"><span class="m">M</span>麦当劳营养膳食专家</div><div class="chap">03 · 目标计算</div></div>
+  <div class="rule"></div>
+  <div class="title">第一步：把「我该吃多少」算清楚</div>
+  <div class="sub">Mifflin-St Jeor 基础代谢 → FAO/WHO 活动系数 → ACSM 三大营养素配比</div>
+  <div class="content">
+    <div class="grid" style="grid-template-columns:1.05fr 1fr;gap:28px;">
+      <div class="card">
+        <h3>计算链路</h3>
+        <table class="t">
+          <tr><th>步骤</th><th>公式 / 依据</th></tr>
+          <tr><td class="hi">基础代谢 BMR</td><td>Mifflin-St Jeor（填了体脂率则切 Katch-McArdle 修正）</td></tr>
+          <tr><td class="hi">总消耗 TDEE</td><td>BMR × PAL 活动系数（1.2 / 1.375 / 1.55 / 1.725 / 1.9）</td></tr>
+          <tr><td class="hi">目标热量</td><td>TDEE × 模式系数（减脂 0.80 / 维持 1.0 / 增肌 1.12）</td></tr>
+          <tr><td class="hi">三大营养素</td><td>ACSM 建议配比 × 目标热量，体脂率参与修正</td></tr>
+          <tr><td class="hi">钠上限</td><td>WHO 全日 2000 mg 口径 × 目标热量密度</td></tr>
+        </table>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="card" style="flex:1;justify-content:center;">
+          <h3>实测输出 <span style="font-size:18px;color:var(--txt3);font-weight:400">25岁男 · 175cm · 70kg · 轻度活动 · 减脂</span></h3>
+          <div class="grid g2" style="height:auto;gap:15px;margin-top:8px;">
+            <div class="kpi"><b style="color:var(--gold)">1841</b><span>全天目标 kcal</span></div>
+            <div class="kpi"><b style="color:var(--red)">1712</b><span>基础代谢 kcal</span></div>
+            <div class="kpi"><b style="color:#5FC98C">144 g</b><span>蛋白质</span></div>
+            <div class="kpi"><b style="color:#7BA3CE">246 g</b><span>碳水</span></div>
+            <div class="kpi"><b style="color:#F0A96E">58 g</b><span>脂肪</span></div>
+            <div class="kpi"><b>2000 mg</b><span>钠上限</span></div>
+          </div>
+        </div>
+        <div class="card" style="border-color:rgba(255,199,44,.3);background:rgba(255,199,44,.06);">
+          <p style="color:var(--txt1)"><b style="color:var(--gold)">关键设计：</b>全天目标与单餐目标<b>必须分开</b>。
+          单餐份额固定为 <b>34%</b>，也就是 1841 × 0.34 = <b>626 kcal</b> —— 这是后面所有约束的基准。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">麦当劳营养膳食专家 · 项目讲解</div><div class="pageno">05</div>
+</section>
+
+<!-- 6 套餐求解器 -->
+<section class="slide">
+  <div class="top"><div class="brand"><span class="m">M</span>麦当劳营养膳食专家</div><div class="chap">04 · 核心算法</div></div>
+  <div class="rule"></div>
+  <div class="title">第二步：结构角色模型 + 多目标约束求解</div>
+  <div class="sub">不是从 160 个单品里做笛卡尔积，而是先定义一餐该有的角色结构</div>
+  <div class="content">
+    <div class="grid g2" style="gap:26px;">
+      <div>
+        <div class="card" style="margin-bottom:16px;">
+          <h3><span class="ico" style="background:#DA291C;color:#fff">角</span>结构角色模型</h3>
+          <p>每个单品先归入 <b>主餐 / 小食 / 饮品 / 甜点</b> 四个角色，再按角色组合。
+          这样杜绝了「两个雪冰 + 一杯奶昔」这种荒谬组合 —— 一餐必须有明确的角色分工。</p>
+          <div class="tags">
+            <span class="tag r">主餐恰好 1 份</span><span class="tag r">饮品恰好 1 份</span>
+            <span class="tag y">小食 ≤ 1</span><span class="tag y">甜点 ≤ 1</span></div>
+        </div>
+        <div class="card">
+          <h3><span class="ico" style="background:#FFC72C;color:#8c1f18">硬</span>硬约束</h3>
+          <table class="t" style="font-size:18px">
+            <tr><td class="hi">主餐热量带</td><td>占本餐 40%–85%</td></tr>
+            <tr><td class="hi">角色热量上限</td><td>小食 max(45%, 400kcal) · 饮品 max(25%, 250kcal)</td></tr>
+            <tr><td class="hi">配菜质量下限</td><td>≥6g 蛋白 或 ≥120 kcal</td></tr>
+            <tr><td class="hi">控卡期禁甜点</td><td>减脂 / 塑形模式直接排除</td></tr>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:16px;">
+          <h3><span class="ico" style="background:#2E9E5B;color:#fff">权</span>多目标加权打分</h3>
+          <div style="margin-top:6px;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:11px;">
+              <span style="font-size:18.5px;width:70px;color:var(--txt1)">蛋白质</span>
+              <div style="flex:1;height:15px;border-radius:8px;background:rgba(255,255,255,.06);overflow:hidden">
+                <div style="width:28%;height:100%;background:#5FC98C"></div></div>
+              <span style="font-size:18px;color:#5FC98C;width:52px;text-align:right">28%</span></div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:11px;">
+              <span style="font-size:18.5px;width:70px;color:var(--txt1)">热量</span>
+              <div style="flex:1;height:15px;border-radius:8px;background:rgba(255,255,255,.06);overflow:hidden">
+                <div style="width:26%;height:100%;background:var(--gold)"></div></div>
+              <span style="font-size:18px;color:var(--gold);width:52px;text-align:right">26%</span></div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:11px;">
+              <span style="font-size:18.5px;width:70px;color:var(--txt1)">钠</span>
+              <div style="flex:1;height:15px;border-radius:8px;background:rgba(255,255,255,.06);overflow:hidden">
+                <div style="width:14%;height:100%;background:#E8833A"></div></div>
+              <span style="font-size:18px;color:#E8833A;width:52px;text-align:right">14%</span></div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:11px;">
+              <span style="font-size:18.5px;width:70px;color:var(--txt1)">碳水</span>
+              <div style="flex:1;height:15px;border-radius:8px;background:rgba(255,255,255,.06);overflow:hidden">
+                <div style="width:13%;height:100%;background:#4A7FB5"></div></div>
+              <span style="font-size:18px;color:#7BA3CE;width:52px;text-align:right">13%</span></div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:11px;">
+              <span style="font-size:18.5px;width:70px;color:var(--txt1)">脂肪</span>
+              <div style="flex:1;height:15px;border-radius:8px;background:rgba(255,255,255,.06);overflow:hidden">
+                <div style="width:11%;height:100%;background:#C0392B"></div></div>
+              <span style="font-size:18px;color:#E0746A;width:52px;text-align:right">11%</span></div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="font-size:18.5px;width:70px;color:var(--txt1)">饱腹</span>
+              <div style="flex:1;height:15px;border-radius:8px;background:rgba(255,255,255,.06);overflow:hidden">
+                <div style="width:8%;height:100%;background:#9b7fd4"></div></div>
+              <span style="font-size:18px;color:#b39ddb;width:52px;text-align:right">8%</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3><span class="ico" style="background:#4A7FB5;color:#fff">搜</span>局部搜索改进</h3>
+          <p>在初始解上反复做 <b>加一份 / 减一份 / 换一份</b> 三种邻域操作，
+          迭代至得分不再提升，最后做多样性去重，保证返回的三个方案彼此有区分度。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">麦当劳营养膳食专家 · 项目讲解</div><div class="pageno">06</div>
+</section>
+
+<!-- 7 实测方案 -->
+<section class="slide">
+  <div class="top"><div class="brand"><span class="m">M</span>麦当劳营养膳食专家</div><div class="chap">04 · 核心算法</div></div>
+  <div class="rule"></div>
+  <div class="title">求解器实测输出</div>
+  <div class="sub">25岁男 · 175cm · 70kg · 轻度活动 · 减脂 ｜ 全天目标 1841 kcal，单餐目标 626 kcal</div>
+  <div class="content">
+    <div class="grid g3" style="gap:24px;">
+      <div class="card" style="border-color:rgba(255,199,44,.35);background:linear-gradient(160deg,rgba(255,199,44,.07),rgba(255,255,255,.012))">
+        <div class="bar" style="background:var(--gold)"></div>
+        <h3><span class="ico" style="background:var(--gold);color:#8c1f18">1</span>方案一 · 最优贴合</h3>
+        <div style="font-size:30px;font-weight:800;margin:6px 0 4px">719 <span style="font-size:18px;color:var(--txt3);font-weight:400">kcal</span></div>
+        <div style="font-size:18px;color:var(--txt2);margin-bottom:14px">占全天 39% · 蛋白 44g · 钠 1981mg</div>
+        <p style="font-size:18.5px;line-height:1.85">
+          <b>板烧鸡腿堡</b> · 主餐<br/>
+          <b>麦麦脆汁鸡-琵琶腿</b> · 小食<br/>
+          <b>无糖可口可乐中杯</b> · 饮品</p>
+        <div class="tags"><span class="tag g">零卡饮品</span><span class="tag">含小食</span></div>
+      </div>
+      <div class="card">
+        <div class="bar" style="background:#5FC98C"></div>
+        <h3><span class="ico" style="background:#5FC98C;color:#fff">2</span>方案二</h3>
+        <div style="font-size:30px;font-weight:800;margin:6px 0 4px">611 <span style="font-size:18px;color:var(--txt3);font-weight:400">kcal</span></div>
+        <div style="font-size:18px;color:var(--txt2);margin-bottom:14px">占全天 33% · 蛋白 43g · 钠 1993mg</div>
+        <p style="font-size:18.5px;line-height:1.85">
+          <b>麦辣鸡腿汉堡</b> · 主餐<br/>
+          <b>蒜了吧黄油风味薄皮脆汁鸡</b> · 小食<br/>
+          <b>无糖可口可乐中杯</b> · 饮品</p>
+        <div class="tags"><span class="tag g">零卡饮品</span><span class="tag">适合控卡期</span></div>
+      </div>
+      <div class="card">
+        <div class="bar" style="background:#7BA3CE"></div>
+        <h3><span class="ico" style="background:#7BA3CE;color:#fff">3</span>方案三</h3>
+        <div style="font-size:30px;font-weight:800;margin:6px 0 4px">555 <span style="font-size:18px;color:var(--txt3);font-weight:400">kcal</span></div>
+        <div style="font-size:18px;color:var(--txt2);margin-bottom:14px">占全天 30% · 蛋白 46g · 钠 1802mg</div>
+        <p style="font-size:18.5px;line-height:1.85">
+          <b>双层吉士汉堡</b> · 主餐<br/>
+          <b>蒜了吧黄油风味薄皮脆汁鸡</b> · 小食<br/>
+          <b>无糖可口可乐中杯</b> · 饮品</p>
+        <div class="tags"><span class="tag g">零卡饮品</span><span class="tag g">低钠友好</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">三套方案均满足「主餐唯一 + 饮品唯一 + 小食 ≤1 + 甜点 ≤1」，饮品位固定落在零卡选项上</div><div class="pageno">07</div>
+</section>
+
+<!-- 8 界面实录 1 -->
+<section class="slide">
+  <div class="top"><div class="brand"><span class="m">M</span>麦当劳营养膳食专家</div><div class="chap">05 · 产品界面</div></div>
+  <div class="rule"></div>
+  <div class="title">SP 矩阵选型视图</div>
+  <div class="sub">真实运行界面 · 数据来自官方 MCP 实时拉取</div>
+  <div class="shot-wrap">
+    <img class="shot-img" src="../docs/screenshots/03-sp-matrix.png" />
+    <div class="shot-side">
+      <div class="point"><div class="no" style="background:rgba(255,199,44,.18);color:var(--gold)">1</div>
+        <div class="tx"><b>散点图即决策依据</b> —— 每个点一个餐品，颜色区分象限，鼠标悬停看详情。</div></div>
+      <div class="point"><div class="no" style="background:rgba(255,199,44,.18);color:var(--gold)">2</div>
+        <div class="tx"><b>金色十字是目标点</b> —— 由你的档案推导，不是固定的中心位置。</div></div>
+      <div class="point"><div class="no" style="background:rgba(255,199,44,.18);color:var(--gold)">3</div>
+        <div class="tx"><b>贴合度百分比</b> —— 右下角按贴合度排序，直接给出「最该点的那一个」。</div></div>
+      <div class="point"><div class="no" style="background:rgba(255,199,44,.18);color:var(--gold)">4</div>
+        <div class="tx"><b>四个象限卡片</b> —— 实时统计每个象限的餐品数量与平均营养。</div></div>
+    </div>
+  </div>
+  <div class="footer">麦当劳营养膳食专家 · 项目讲解</div><div class="pageno">08</div>
+</section>
+
+<!-- 9 界面实录 2 -->
+<section class="slide">
+  <div class="top"><div class="brand"><span class="m">M</span>麦当劳营养膳食专家</div><div class="chap">05 · 产品界面</div></div>
+  <div class="rule"></div>
+  <div class="title">门店点餐视图 —— 点击门店进入店内</div>
+  <div class="sub">菜单每个条目都带 SP 象限角标与营养标注，套餐自动展开内含单品</div>
+  <div class="shot-wrap">
+    <img class="shot-img" src="../docs/screenshots/05-menu.png" />
+    <div class="shot-side">
+      <div class="point"><div class="no" style="background:rgba(255,199,44,.18);color:var(--gold)">1</div>
+        <div class="tx"><b>象限角标</b> —— 每个餐品左上角标注所属象限，一眼分辨「该点」与「别点」。</div></div>
+      <div class="point"><div class="no" style="background:rgba(255,199,44,.18);color:var(--gold)">2</div>
+        <div class="tx"><b>贴合度百分比</b> —— 结合你当前档案算出的个性化推荐值。</div></div>
+      <div class="point"><div class="no" style="background:rgba(255,199,44,.18);color:var(--gold)">3</div>
+        <div class="tx"><b>套餐成分展开</b> —— 「三件套」不再是黑盒，内含单品逐个列出。</div></div>
+      <div class="point"><div class="no" style="background:rgba(255,199,44,.18);color:var(--gold)">4</div>
+        <div class="tx"><b>底部购物车</b> —— 实时计价、领券、下单一条龙。</div></div>
+    </div>
+  </div>
+  <div class="footer">麦当劳营养膳食专家 · 项目讲解</div><div class="pageno">09</div>
+</section>
+
+<!-- 10 套餐覆盖率 -->
+<section class="slide">
+  <div class="top"><div class="brand"><span class="m">M</span>麦当劳营养膳食专家</div><div class="chap">06 · 工程难点</div></div>
+  <div class="rule"></div>
+  <div class="title">难点一：菜单 56% 是套餐，怎么给它算 SP 坐标？</div>
+  <div class="sub">官方营养表只收录单品，「三件套 / 四件套 / 分享餐」在表里查不到</div>
+  <div class="content">
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:26px;">
+      <div>
+        <div class="card" style="margin-bottom:16px;">
+          <h3><span class="ico" style="background:#DA291C;color:#fff">解</span>解法：拉明细，按热量加权聚合</h3>
+          <p>用 <b class="mono">query-meal-detail</b> 拿到套餐每一轮的组成，
+          只取<b>已选中</b>的那个选项（<span class="mono">isDefault=1</span> 或 <span class="mono">selectedQuantity&gt;0</span>），
+          同一单品只计一次，再按热量加权聚合出这个套餐自己的营养画像与 SP 坐标。</p>
+          <div class="tags"><span class="tag r">只取选中项</span><span class="tag r">同单品去重</span><span class="tag r">按热量加权</span></div>
+        </div>
+        <div class="card" style="border-color:rgba(192,57,43,.35);background:rgba(192,57,43,.07)">
+          <h3><span class="ico" style="background:#C0392B;color:#fff">坑</span>踩过的坑</h3>
+          <p>一开始把<b>所有轮次的所有选项</b>累加起来，套餐热量算出 <b>3222 kcal</b> —— 相当于吃了四顿。
+          根因是没做「已选中」过滤，也没做单品去重。</p>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:16px;">
+          <h3><span class="ico" style="background:#FFC72C;color:#8c1f18">五</span>五级名称匹配</h3>
+          <table class="t" style="font-size:18px">
+            <tr><td class="hi">1 · 全名精确</td><td>「巨无霸」→ 命中</td></tr>
+            <tr><td class="hi">2 · 去后缀</td><td>「巨无霸三件套」→ 去「三件套」</td></tr>
+            <tr><td class="hi">3 · 去前缀修饰</td><td>「龙焰鸡腿堡」→ 「鸡腿堡」</td></tr>
+            <tr><td class="hi">4 · 双向包含</td><td>取最长命中，排除「无糖」误配</td></tr>
+            <tr><td class="hi">5 · 品类回退</td><td>新品按同品类中位单品近似</td></tr>
+          </table>
+        </div>
+        <div class="card" style="border-color:rgba(46,158,91,.35);background:rgba(46,158,91,.07)">
+          <h3>覆盖率提升</h3>
+          <div style="display:flex;align-items:center;gap:26px;margin-top:8px;">
+            <div class="kpi"><b style="color:#E0746A">31/87</b><span>改造前 · 35%</span></div>
+            <div style="font-size:34px;color:var(--txt3)">→</div>
+            <div class="kpi"><b style="color:#5FC98C">86/98</b><span>改造后 · 88%</span></div>
+          </div>
+          <p style="margin-top:12px">未被营养表收录的新品，按同品类中位单品近似并显式标注<b>「新品估算」</b>，不假装精确。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">麦当劳营养膳食专家 · 项目讲解</div><div class="pageno">10</div>
+</section>
+
+<!-- 11 MCP 踩坑 -->
+<section class="slide">
+  <div class="top"><div class="brand"><span class="m">M</span>麦当劳营养膳食专家</div><div class="chap">06 · 工程难点</div></div>
+  <div class="rule"></div>
+  <div class="title">难点二：官方接口的五个真实陷阱</div>
+  <div class="sub">全部来自实际联调，已整理进 MCP_INTEGRATION.md 供后来者参考</div>
+  <div class="content">
+    <div class="grid g2" style="gap:20px;">
+      <div class="card" style="padding:22px 26px">
+        <h3><span class="ico" style="background:#C0392B;color:#fff">1</span>计价契约字段名</h3>
+        <p>契约是 <b class="mono">productCode</b> + <b class="mono">quantity</b>，传成 <span class="mono">code</span>/<span class="mono">count</span>
+        <b>不报错，只是静默返回全 0 价格</b>，极难排查。</p></div>
+      <div class="card" style="padding:22px 26px">
+        <h3><span class="ico" style="background:#C0392B;color:#fff">2</span>价格单位双口径</h3>
+        <p>菜单接口的 <span class="mono">currentPrice</span> 已是<b>元</b>（"29.9"），
+        计价与下单返回的却是<b>分</b>（2990）。统一除以 100 会让 29.9 元显示成 0.3 元。</p></div>
+      <div class="card" style="padding:22px 26px">
+        <h3><span class="ico" style="background:#C0392B;color:#fff">3</span>营养表是伪表格</h3>
+        <p><span class="mono">list-nutrition-foods</span> 的 data 不是 JSON，而是
+        <span class="mono">[160]{字段列表}:</span> 加每行一条的<b>自定义文本格式</b>，需要专用解析器。</p></div>
+      <div class="card" style="padding:22px 26px">
+        <h3><span class="ico" style="background:#C0392B;color:#fff">4</span>返回结构不一致</h3>
+        <p><span class="mono">query-my-coupons</span> 返回 <b>dict</b>（<span class="mono">{coupons:[...]}</span>），
+        而 <span class="mono">available-coupons</span> 返回 <b>list</b>。统一按 list 取会让卡包恒空。</p></div>
+      <div class="card" style="padding:22px 26px;grid-column:span 2">
+        <h3><span class="ico" style="background:#C0392B;color:#fff">5</span>门店状态是真实业务状态</h3>
+        <p>部分门店当日已打烊，接口会返回「<b>门店可能已关闭或不在营业时间</b>」。
+        这不是 bug —— 前端需要给出可读提示，而不是空白页或崩溃。</p></div>
+    </div>
+  </div>
+  <div class="footer">麦当劳营养膳食专家 · 项目讲解</div><div class="pageno">11</div>
+</section>
+
+<!-- 12 架构 -->
+<section class="slide">
+  <div class="top"><div class="brand"><span class="m">M</span>麦当劳营养膳食专家</div><div class="chap">07 · 技术架构</div></div>
+  <div class="rule"></div>
+  <div class="title">分层架构与数据流</div>
+  <div class="sub">依赖方向严格单向：表现 → 服务 → 领域 → 集成。领域层不感知 HTTP，集成层不感知业务</div>
+  <div class="content">
+    <div style="display:flex;flex-direction:column;gap:0;">
+      <div class="layer"><div class="lab" style="background:rgba(218,41,28,.16);color:#E8837A">表现层</div>
+        <div class="body">web/index.html —— <b>单文件原生前端</b>，零第三方依赖、零 CDN。
+          SP 散点图 / 折线图 / 象限条形图全部用 <b>Canvas 原生绘制</b>，五视图：建档 · SP矩阵 · 套餐推荐 · 门店点餐 · 健康可视化</div></div>
+      <div class="layer"><div class="lab" style="background:rgba(255,199,44,.16);color:var(--gold)">服务层</div>
+        <div class="body">scripts/server.py —— <b>FastAPI + uvicorn</b>，14 个 REST 接口。
+          职责：协议适配 / <b>价格口径归一</b>（分→元）/ 字段名归一（productCode）/ 套餐聚合 / 明细缓存</div></div>
+      <div class="layer"><div class="lab" style="background:rgba(46,158,91,.16);color:#5FC98C">领域层</div>
+        <div class="body">
+          <b>nutrition_engine.py</b> 档案校验 · BMR/TDEE · 三大营养素目标　　
+          <b>sp_matrix.py</b> SP 四象限 · 动态阈值 · 贴合度<br/>
+          <b>combo_solver.py</b> 结构角色模型 · 多目标约束求解 · 局部搜索</div></div>
+      <div class="layer"><div class="lab" style="background:rgba(74,127,181,.16);color:#7BA3CE">集成层</div>
+        <div class="body">scripts/mcp_client.py —— <b>唯一的 MCP 出口</b>，Streamable HTTP 客户端，自带限流 / 重试 / 退避。
+          健康档案走 scripts/health_store.py（<b>SQLite 三表分离</b>，本地存储，不上传）</div></div>
+      <div class="layer" style="border-color:rgba(255,199,44,.35)"><div class="lab" style="background:rgba(255,199,44,.2);color:var(--gold)">麦当劳官方 MCP</div>
+        <div class="body">https://mcp.mcd.cn —— <b>35 个官方工具</b>：营养数据 / 门店查询 / 菜单 / 套餐明细 / 优惠券 / 计价 / 下单 / 账户</div></div>
+    </div>
+  </div>
+  <div class="footer">麦当劳营养膳食专家 · 项目讲解</div><div class="pageno">12</div>
+</section>
+
+<!-- 13 亮点与边界 -->
+<section class="slide">
+  <div class="top"><div class="brand"><span class="m">M</span>麦当劳营养膳食专家</div><div class="chap">08 · 总结</div></div>
+  <div class="rule"></div>
+  <div class="title">项目亮点与适用边界</div>
+  <div class="content">
+    <div class="grid g2" style="gap:26px;">
+      <div>
+        <div class="card" style="margin-bottom:16px;">
+          <h3><span class="ico" style="background:#5FC98C;color:#fff">亮</span>四个核心亮点</h3>
+          <table class="t" style="font-size:18px">
+            <tr><td class="hi">理论创新</td><td>SP 矩阵从营销学迁移到饮食选型，用密度指标消除量纲偏差</td></tr>
+            <tr><td class="hi">算法扎实</td><td>结构角色模型 + 多目标约束求解 + 局部搜索，产出真正可执行的一餐</td></tr>
+            <tr><td class="hi">闭环完整</td><td>营养 → 选店 → 领券 → 下单 → 记录，五个环节全部打通官方 MCP</td></tr>
+            <tr><td class="hi">数据真实</td><td>160 条营养数据 + 98 个菜单条目，覆盖率 88%，无一是编的</td></tr>
+          </table>
+        </div>
+        <div class="card" style="border-color:rgba(74,127,181,.35);background:rgba(74,127,181,.07)">
+          <h3><span class="ico" style="background:#4A7FB5;color:#fff">技</span>技术栈</h3>
+          <div class="tags" style="margin-top:4px">
+            <span class="tag">Python 3.10+</span><span class="tag">FastAPI</span><span class="tag">uvicorn</span>
+            <span class="tag">SQLite</span><span class="tag">原生 Canvas</span><span class="tag">MCP Streamable HTTP</span>
+            <span class="tag">WorkBuddy Skill</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:16px;">
+          <h3><span class="ico" style="background:#E8833A;color:#fff">界</span>适用边界（重要）</h3>
+          <p style="line-height:1.85">
+          · 输出<b>仅供参考</b>，不构成医疗、营养或其他专业建议<br/>
+          · 营养数据来自官方接口，<b>新品可能未收录</b>（已标注「新品估算」）<br/>
+          · 钠上限按 WHO 全日口径，<b>不摊到单餐</b> —— 分摊会导致几乎所有套餐判超标<br/>
+          · 门店状态实时变化，<b>部分门店可能已打烊</b><br/>
+          · 餐品价格与供应以<b>麦当劳官方渠道实时结果</b>为准</p>
+        </div>
+        <div class="card" style="border-color:rgba(255,199,44,.3);background:rgba(255,199,44,.06)">
+          <h3><span class="ico" style="background:var(--gold);color:#8c1f18">隐</span>隐私与安全</h3>
+          <p>Token 只从环境变量读取，<b>不入代码库</b>；健康档案（体重、饮食记录）仅存本地 SQLite，<b>不上传任何服务器</b>；
+          所有 MCP 调用经统一出口，便于审计。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">麦当劳营养膳食专家 · 项目讲解</div><div class="pageno">13</div>
+</section>
+
+<!-- 14 结尾 -->
+<section class="slide">
+  <div class="glow" style="width:760px;height:760px;background:#DA291C;left:-200px;bottom:-260px;"></div>
+  <div class="glow" style="width:640px;height:640px;background:#FFC72C;right:-180px;top:-200px;opacity:.16"></div>
+  <div class="cover">
+    <div class="kicker">THANKS FOR WATCHING</div>
+    <h1 style="font-size:104px">身材管控期<br/>也能吃明白麦当劳</h1>
+    <div class="en" style="letter-spacing:5px">MCDONALD'S NUTRITION DIET EXPERT</div>
+    <div class="desc">全链路打通官方 MCP 的营养选型与点餐工具 ——<br/>从「今天该吃多少」到「这一单怎么点」，一次算清楚。</div>
+    <div class="foot">
+      <span class="pill">GitHub　<b>github.com/ChinaOpenClaw/mcd-nutrition-expert</b></span>
+      <span class="pill">Skill　<b>workbuddy.md</b> · <b>SKILL.md</b></span>
+      <span class="pill">文档　<b>README</b> · <b>ARCHITECTURE</b> · <b>API</b> · <b>MCP_INTEGRATION</b></span>
+    </div>
+  </div>
+  <div class="pageno">14</div>
+</section>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const s = parseInt(params.get('s') || '1', 10);
+  const slides = document.querySelectorAll('.slide');
+  slides.forEach(el => el.classList.remove('on'));
+  const target = slides[Math.min(Math.max(s - 1, 0), slides.length - 1)];
+  if (target) target.classList.add('on');
+</script>
+</body>
+</html>

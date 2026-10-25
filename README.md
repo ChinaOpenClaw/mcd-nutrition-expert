@@ -282,10 +282,26 @@ mcd-nutrition-expert/
 ├── MCP_INTEGRATION.md           # MCP 集成说明（含 5 个真实踩坑记录）
 ├── workbuddy.md                 # WorkBuddy Skill 使用说明
 ├── README.md
+├── deck/
+│   └── index.html               # 项目讲解视频幻灯片源（14 页，红金主题）
+├── tools/                       # 讲解视频生产流水线（可复现）
+│   ├── make_sp_svg.py           # 用真实接口数据渲染 SP 矩阵 SVG
+│   ├── render_deck.js           # Playwright + webkit 渲染 14 张幻灯片
+│   ├── narration.py             # 14 段旁白文案（与幻灯片一一对应）
+│   ├── pronunciation_overrides.py # 多音字读音覆盖表（单一数据源）
+│   ├── tts_stepaudio.py         # StepAudio 2.5 TTS 引擎
+│   ├── assemble_narration.py    # 分段音频 → 单轨 wav + timeline.json
+│   └── build_video.py           # 幻灯片 + 音轨 → 1080p 成片
 ├── docs/
 │   ├── ARCHITECTURE.md          # 架构与算法说明
 │   ├── API.md                   # 接口清单
-│   └── screenshots/             # 前端五视图实录
+│   ├── 项目简介.md              # 申报与答辩素材源（一句话/150/350/800 字四版）
+│   ├── 项目简介-纯文本.txt       # 纯文本版，便于粘贴到 Issue / 表单
+│   ├── screenshots/             # 前端五视图实录
+│   └── video/                   # 讲解视频产物
+│       ├── assets/sp-matrix.svg # 真实数据 SP 矩阵图
+│       ├── slides/              # 14 张 1080p 幻灯片
+│       └── audio/               # 旁白音轨（gitignore）
 └── skills/mcd-nutrition-expert/
     ├── SKILL.md                 # Skill 定义
     ├── .env.example             # Token 占位符
@@ -297,7 +313,29 @@ mcd-nutrition-expert/
 
 ---
 
-## 七、隐私与安全
+## 七、项目讲解视频
+
+`tools/` 下是一条完整可复现的流水线，从真实接口数据到 1080p 成片：
+
+| 步骤 | 命令 | 产出 |
+|---|---|---|
+| 1 · 生成 SP 矩阵图 | `python tools/make_sp_svg.py` | `docs/video/assets/sp-matrix.svg`（真实数据散点图） |
+| 2 · 渲染幻灯片 | `node tools/render_deck.js` | `docs/video/slides/slide-01..14.png`（1920×1080@2x） |
+| 3 · 合成旁白 | `python tools/tts_stepaudio.py --voice ruyananshi --speed 1.2` | `docs/video/audio/s01..14.wav` |
+| 4 · 装配音轨 | `python tools/assemble_narration.py --source stepaudio` | `docs/video/audio/narration.wav` + `timeline.json` |
+| 5 · 合成成片 | `python tools/build_video.py` | `docs/video/麦当劳营养膳食专家_项目讲解_1080p.mp4` |
+
+要点：
+
+- **音画严格对齐** —— 第 4 步产出 `timeline.json`，第 5 步按段时长裁切画面
+- **画面完全静止**，仅做 0.30s 淡入 / 0.34s 淡出，不做推镜，避免逐帧亚像素抖动
+- **多音字读音受控** —— `pronunciation_overrides.py` 维护 157 条读音覆盖
+  （矩阵/阈值/中位数/解馋/膳食/打烊/琵琶腿…），StepAudio 的 `pronunciation_map` 原生生效
+- **ffmpeg 自动探测** —— 支持 `MCD_FFMPEG` 环境变量、`@ffmpeg-installer`、PATH 三级回退
+
+---
+
+## 八、隐私与安全
 
 - **Token 只从环境变量读取**，不写入代码库，不出现在任何提交中
 - `.env` / `data/*.db` 已加入 `.gitignore`
@@ -306,7 +344,7 @@ mcd-nutrition-expert/
 
 ---
 
-## 八、致谢
+## 九、致谢
 
 - 麦当劳程序员节创意开发大赛提供的 MCP Server 与 35 个官方工具
 - 官方营养数据（160 个餐品的完整营养成分）
