@@ -64,15 +64,19 @@ def main():
                'viewBox="0 0 %d %d">' % (W, H, W, H))
     out.append('<rect width="%d" height="%d" fill="#0f1116"/>' % (W, H))
 
-    # 象限底色
-    out.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" fill="#2E9E5B" opacity="0.07"/>'
-               % (X(x_th), PAD_T, X(max_x) - X(x_th), Y(y_th) - PAD_T))
-    out.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" fill="#C0392B" opacity="0.07"/>'
-               % (X(x_th), PAD_T, X(max_x) - X(x_th), Y(0) - Y(y_th)))
-    out.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" fill="#E8833A" opacity="0.07"/>'
-               % (PAD_L, PAD_T, X(x_th) - PAD_L, Y(y_th) - PAD_T))
-    out.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" fill="#4A7FB5" opacity="0.07"/>'
-               % (PAD_L, PAD_T, X(x_th) - PAD_L, Y(0) - Y(y_th)))
+    # 象限底色（与后端 sp_matrix.py 判定一致，且遵循 Y 轴翻转：y 越大越靠上）
+    #   主力区 sweet_point : x>=x_th 且 y<y_th  → 右下
+    #   双刃区 double_edge: x>=x_th 且 y>=y_th → 右上
+    #   解馋区 treat      : x< x_th 且 y>=y_th → 左上
+    #   填充区 filler     : x< x_th 且 y< y_th  → 左下
+    def qrect(x0, x1, y0, y1, color):
+        out.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" fill="%s" opacity="0.07"/>'
+                   % (X(x0), Y(y1), X(x1) - X(x0), Y(y0) - Y(y1), color))
+
+    qrect(x_th, max_x, 0, y_th, COLORS["sweet_point"])
+    qrect(x_th, max_x, y_th, max_y, COLORS["double_edge"])
+    qrect(0, x_th, y_th, max_y, COLORS["treat"])
+    qrect(0, x_th, 0, y_th, COLORS["filler"])
 
     # 网格
     for i in range(6):
@@ -128,12 +132,12 @@ def main():
                'font-family="PingFang SC,Microsoft YaHei,sans-serif">'
                '钠负担 Y （钠）/ 热量 × 100</text>' % (PAD_T + PH / 2, PAD_T + PH / 2))
 
-    # 象限标签
+    # 象限标签（位置严格落在各自象限内）
     labels = [
-        ("主力区", X(x_th) + 16, PAD_T + 34, "#5FC98C"),
-        ("双刃区", X(x_th) + 16, PAD_T + PH - 16, "#E0746A"),
-        ("解馋区", PAD_L + 16, PAD_T + 34, "#F0A96E"),
-        ("填充区", PAD_L + 16, PAD_T + PH - 16, "#7BA3CE"),
+        ("主力区", X(x_th) + 16, Y(y_th) + 30, "#5FC98C"),     # 右下
+        ("双刃区", X(x_th) + 16, PAD_T + 34, "#E0746A"),      # 右上
+        ("解馋区", PAD_L + 16, PAD_T + 34, "#F0A96E"),        # 左上
+        ("填充区", PAD_L + 16, PAD_T + PH - 16, "#7BA3CE"),    # 左下
     ]
     for name, lx, ly, col in labels:
         cnt = quads.get({"主力区": "sweet_point", "双刃区": "double_edge",

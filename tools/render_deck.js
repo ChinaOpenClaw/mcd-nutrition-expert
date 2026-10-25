@@ -4,8 +4,8 @@
 // 注意（沿用前几项目经验）：
 //   1. 每页渲染前必须清空 .slide.on 再激活目标页，否则第 2~N 页会与第 1 页同显
 //   2. 打印 on= 激活数与 imgLoaded= 图片解码状态，出错一眼可见
-//   3. 本机无 Chrome channel，Chromium 走 msedge 会不稳，统一用 webkit
-const { webkit } = require('playwright');
+//   3. 本机无 Chrome channel，Chromium 走 msedge 会不稳，统一用内置 chromium
+const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 
@@ -14,7 +14,7 @@ const fs = require('fs');
   const outDir = path.resolve(__dirname, '..', 'docs', 'video', 'slides');
   fs.mkdirSync(outDir, { recursive: true });
 
-  const browser = await webkit.launch({ headless: true });
+  const browser = await chromium.launch({ headless: true });
   const ctx = await browser.newContext({
     viewport: { width: 1920, height: 1080 },
     deviceScaleFactor: 2,

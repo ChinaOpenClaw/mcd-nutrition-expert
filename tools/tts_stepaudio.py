@@ -39,8 +39,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 AUDIO_DIR = os.path.join(BASE, 'docs', 'video', 'audio')
 
 API_BASE = os.environ.get('HCNSEC_BASE_URL', 'https://api.hcnsec.cn/v1')
-API_KEY = os.environ.get('HCNSEC_API_KEY',
-                         'REDACTED')
+# API Key 必须通过环境变量提供，仓库内不保存任何明文凭据。
+#   PowerShell : $env:HCNSEC_API_KEY = "sk-..."
+#   bash       : export HCNSEC_API_KEY="sk-..."
+API_KEY = os.environ.get('HCNSEC_API_KEY', '')
 MODEL = os.environ.get('HCNSEC_TTS_MODEL', 'stepaudio-2.5-tts')
 
 # ============================================================
@@ -130,6 +132,12 @@ def synth(text, outfile, voice=DEFAULT_VOICE, pron_map=None,
           instruction=None, response_format='wav', speed=1.0,
           max_retries=3):
     """调用 TTS 接口合成一段文本"""
+    if not API_KEY:
+        raise RuntimeError(
+            '未设置 HCNSEC_API_KEY 环境变量。\n'
+            '  PowerShell : $env:HCNSEC_API_KEY = "sk-..."\n'
+            '  bash       : export HCNSEC_API_KEY="sk-..."\n'
+            '（仓库内不保存明文凭据，请自行申请后注入）')
     payload = {
         'model': MODEL,
         'voice': voice,

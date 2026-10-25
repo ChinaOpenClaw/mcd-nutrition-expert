@@ -542,27 +542,26 @@ function drawSP(){
   const ax=MATRIX.axes, th=MATRIX.thresholds;
   const maxX=ax.x.max, maxY=ax.y.max;
 
-  // 象限底色
+  // 象限底色（与后端 sp_matrix.py 判定一致；散点使用 Y 轴翻转：y 越大越靠上）
+  //   主力区 sweet_point : x>=th.x 且 y< th.y → 右下
+  //   双刃区 double_edge: x>=th.x 且 y>=th.y → 右上
+  //   解馋区 treat      : x< th.x 且 y>=th.y → 左上
+  //   填充区 filler     : x< th.x 且 y< th.y → 左下
+  const xL=pad.l, xR=pad.l+pw, yT=pad.t, yB=pad.t+ph;
+  const xM=pad.l+th.x/maxX*pw, yM=pad.t+ph-(th.y/maxY)*ph;
   const quads=[
-    {x:0,y:0,w:th.x,  h:th.y,  c:'#FBE9DC'},  // 左下 解馋区
-    {x:th.x,y:0,w:maxX-th.x,h:th.y,c:'#E4F1E8'}, // 右下 主力区
-    {x:0,y:th.y,w:th.x,h:maxY-th.y,c:'#F6EFE4'}, // 左上 填充区
-    {x:th.x,y:th.y,w:maxX-th.x,h:maxY-th.y,c:'#FBE4E1'}, // 右上 双刃区
+    {x:xM,y:yM,w:xR-xM,h:yB-yM,c:'#E4F1E8'},  // 右下 主力区
+    {x:xM,y:yT,w:xR-xM,h:yM-yT,c:'#FBE4E1'},  // 右上 双刃区
+    {x:xL,y:yT,w:xM-xL,h:yM-yT,c:'#FBE9DC'},  // 左上 解馋区
+    {x:xL,y:yM,w:xM-xL,h:yB-yM,c:'#F6EFE4'},  // 左下 填充区
   ];
-  quads.forEach(q=>{
-    g.fillStyle=q.c;
-    g.fillRect(pad.l+q.w/maxX*pw, pad.t+q.h/maxY*ph,
-               q.w/maxX*pw, q.h/maxY*ph);
-  });
-  // 象限标签
+  quads.forEach(q=>{ g.fillStyle=q.c; g.fillRect(q.x,q.y,q.w,q.h); });
+  // 象限标签（落在各自象限内）
   g.font='600 12px "PingFang SC",sans-serif';
   g.fillStyle='rgba(0,0,0,.34)';
-  const lbl=[['解馋区',0,th.y,th.x,0],['主力区',th.x,th.y,maxX,0],
-             ['填充区',0,0,th.x,maxY],['双刃区',th.x,0,maxX,maxY]];
-  lbl.forEach(([t,x,y])=>{
-    const px=pad.l+(x/maxX)*pw+8, py=pad.t+(y/maxY)*ph+16;
-    g.fillText(t,px,py);
-  });
+  const lbl=[['主力区',xM+8,yM+16],['双刃区',xM+8,yT+16],
+             ['解馋区',xL+8,yT+16],['填充区',xL+8,yB-8]];
+  lbl.forEach(([t,px,py])=>{ g.fillText(t,px,py); });
   // 分界线
   g.strokeStyle='rgba(0,0,0,.2)'; g.setLineDash([5,4]); g.lineWidth=1;
   g.beginPath();

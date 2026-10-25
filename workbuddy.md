@@ -23,7 +23,7 @@
 ### 方式 A：从仓库目录加载
 
 ```bash
-git clone https://github.com/sangjiexun/mcd-nutrition-expert.git
+git clone https://github.com/ChinaOpenClaw/mcd-nutrition-expert.git
 ```
 
 在 WorkBuddy 会话中：
